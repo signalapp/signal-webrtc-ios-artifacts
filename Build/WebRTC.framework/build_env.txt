@@ -1,0 +1,35 @@
+## WebRTC Build Details
+
+To track down potential future issues, we log some of our build environment details.
+
+webrtc git branch:
+(HEAD detached at 9110a54a60)
+
+webrtc git sha:
+9110a54a60d9e0c69128338fc250319ddb751b5a
+
+build_script git sha:
+173d1224b0d34c2e1213315d673ab68d7afbb27f
+
+xcodebuild -version:
+Xcode 9.4.1
+Build version 9F2000
+
+xcode-select -p:
+/Applications/Xcode.app/Contents/Developer
+
+gcc -v:
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include/c++/4.2.1
+Apple LLVM version 9.1.0 (clang-902.0.39.2)
+Target: x86_64-apple-darwin17.7.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+osx_version_details:
+ProductName:	Mac OS X
+ProductVersion:	10.13.6
+BuildVersion:	17G65
+
+hostname:
+android-d80e0eba8b3d160
+
