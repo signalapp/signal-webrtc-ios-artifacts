@@ -16,6 +16,7 @@
 #import <WebRTC/RTCAudioTrack.h>
 #import <WebRTC/RTCCameraVideoCapturer.h>
 #import <WebRTC/RTCCameraPreviewView.h>
+#import <WebRTC/RTCCertificate.h>
 #import <WebRTC/RTCConfiguration.h>
 #import <WebRTC/RTCDataChannel.h>
 #import <WebRTC/RTCDataChannelConfiguration.h>
@@ -35,6 +36,7 @@
 #import <WebRTC/RTCMediaStreamTrack.h>
 #import <WebRTC/RTCMetrics.h>
 #import <WebRTC/RTCMetricsSampleInfo.h>
+#import <WebRTC/RTCMTLVideoView.h>
 #import <WebRTC/RTCPeerConnection.h>
 #import <WebRTC/RTCPeerConnectionFactory.h>
 #import <WebRTC/RTCPeerConnectionFactoryOptions.h>
@@ -65,4 +67,3 @@
 #import <WebRTC/RTCVideoEncoderVP9.h>
 #import <WebRTC/RTCCallbackLogger.h>
 #import <WebRTC/RTCFileLogger.h>
-#import <WebRTC/RTCMTLVideoView.h>
