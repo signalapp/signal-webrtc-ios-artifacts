@@ -10,14 +10,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import <WebRTC/RTCLogging.h>
-#import <WebRTC/RTCMacros.h>
+#import "RTCLogging.h"
+#import "RTCMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 // This class intercepts WebRTC logs and forwards them to a registered block.
 // This class is not threadsafe.
-RTC_EXPORT
+RTC_OBJC_EXPORT
 @interface RTCCallbackLogger : NSObject
 
 // The severity level to capture. The default is kRTCLoggingSeverityInfo.

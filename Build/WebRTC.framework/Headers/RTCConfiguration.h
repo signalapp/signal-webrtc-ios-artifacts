@@ -10,8 +10,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import <WebRTC/RTCCertificate.h>
-#import <WebRTC/RTCMacros.h>
+#import "RTCCertificate.h"
+#import "RTCMacros.h"
 
 @class RTCIceServer;
 @class RTCIntervalRange;
@@ -68,7 +68,8 @@ typedef NS_ENUM(NSInteger, RTCSdpSemantics) {
 };
 
 NS_ASSUME_NONNULL_BEGIN
-RTC_EXPORT
+
+RTC_OBJC_EXPORT
 @interface RTCConfiguration : NSObject
 
 /** An array of Ice Servers available to be used by ICE. */
@@ -166,6 +167,12 @@ RTC_EXPORT
  *  workaround for crbug.com/835958
  */
 @property(nonatomic, assign) BOOL activeResetSrtpParams;
+
+/**
+ * If MediaTransportFactory is provided in PeerConnectionFactory, this flag informs PeerConnection
+ * that it should use the MediaTransportInterface.
+ */
+@property(nonatomic, assign) BOOL useMediaTransport;
 
 - (instancetype)init;
 

@@ -3,24 +3,24 @@
 To track down potential future issues, we log some of our build environment details.
 
 webrtc git branch:
-(HEAD detached at 4ab51cb6d7)
+(HEAD detached at b6f3b9582c)
 
 webrtc git sha:
-4ab51cb6d7d4530b344e63ed8274d1454b7a5f39
+b6f3b9582c7e20119604c43d65fe4393de95d430
 
 build_script git sha:
-f18562403f6834531fe5ae0ac14283535a4e7bb0
+422f873089ae4f3d732d5bd706ad078c576bb569
 
 xcodebuild -version:
-Xcode 9.4.1
-Build version 9F2000
+Xcode 10.1
+Build version 10B61
 
 xcode-select -p:
 /Applications/Xcode.app/Contents/Developer
 
 gcc -v:
-Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include/c++/4.2.1
-Apple LLVM version 9.1.0 (clang-902.0.39.2)
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/c++/4.2.1
+Apple LLVM version 10.0.0 (clang-1000.11.45.5)
 Target: x86_64-apple-darwin17.7.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -28,7 +28,7 @@ InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault
 osx_version_details:
 ProductName:	Mac OS X
 ProductVersion:	10.13.6
-BuildVersion:	17G65
+BuildVersion:	17G3025
 
 hostname:
 oak

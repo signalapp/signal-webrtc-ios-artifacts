@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <WebRTC/RTCMacros.h>
+#import "RTCMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,7 +38,7 @@ RTC_EXTERN NSString *const kRTCMediaConstraintsVoiceActivityDetection;
 RTC_EXTERN NSString *const kRTCMediaConstraintsValueTrue;
 RTC_EXTERN NSString *const kRTCMediaConstraintsValueFalse;
 
-RTC_EXPORT
+RTC_OBJC_EXPORT
 @interface RTCMediaConstraints : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;

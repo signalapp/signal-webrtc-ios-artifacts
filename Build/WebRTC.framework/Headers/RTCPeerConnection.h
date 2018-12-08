@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <WebRTC/RTCMacros.h>
+#import "RTCMacros.h"
 
 @class RTCConfiguration;
 @class RTCDataChannel;
@@ -72,7 +72,7 @@ typedef NS_ENUM(NSInteger, RTCStatsOutputLevel) {
 
 @class RTCPeerConnection;
 
-RTC_EXPORT
+RTC_OBJC_EXPORT
 @protocol RTCPeerConnectionDelegate <NSObject>
 
 /** Called when the SignalingState changed. */
@@ -130,7 +130,7 @@ RTC_EXPORT
 
 @end
 
-RTC_EXPORT
+RTC_OBJC_EXPORT
 @interface RTCPeerConnection : NSObject
 
 /** The object that will be notifed about events such as state changes and
