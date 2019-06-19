@@ -3,13 +3,13 @@
 To track down potential future issues, we log some of our build environment details.
 
 webrtc git branch:
-(HEAD detached at 1c3582ec71)
+(HEAD detached at 159c16f3ce)
 
 webrtc git sha:
-1c3582ec711d8e57c73a45dbad8741879fbc4da9
+159c16f3ceea1d02d08d51fc83d843019d773ec6
 
 build_script git sha:
-963398e58c570ffa49308dfc96006c7b57ce19c1
+c4c4d64ad8b6a4cf0016278d005e584b72539365
 
 xcodebuild -version:
 Xcode 10.2
