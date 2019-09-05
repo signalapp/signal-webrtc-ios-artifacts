@@ -1,0 +1,53 @@
+## RingRTC Build Details
+
+To track down potential future issues, we log some of our build environment details.
+
+ringrtc version:
+0.1.2
+
+ringrtc git branch:
+jim/ios-remove-pcc
+
+ringrtc git sha:
+a85af6edeee12ae774132047828805ca375807de
+
+webrtc version:
+m77
+
+webrtc git branch:
+patched-src
+
+webrtc git sha:
+54b096e90b18d2f320b0c79614f66db68fc3a44c
+
+build_script git sha:
+a85af6edeee12ae774132047828805ca375807de
+
+rustc --version:
+rustc 1.37.0 (eae3437df 2019-08-13)
+
+cargo --version:
+cargo 1.37.0 (9edd08916 2019-08-02)
+
+xcodebuild -version:
+Xcode 10.3
+Build version 10G8
+
+xcode-select -p:
+/Applications/Xcode.app/Contents/Developer
+
+gcc -v:
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/c++/4.2.1
+Apple LLVM version 10.0.1 (clang-1001.0.46.4)
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+
+osx_version_details:
+ProductName:	Mac OS X
+ProductVersion:	10.14.6
+BuildVersion:	18G95
+
+hostname:
+Jim’s MacBook Pro
+

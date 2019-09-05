@@ -126,6 +126,11 @@ RTC_OBJC_EXPORT
  *  This is only called with RTCSdpSemanticsUnifiedPlan specified.
  */
 @optional
+/** Called any time the IceConnectionState changes following standardized
+ * transition. */
+- (void)peerConnection:(RTCPeerConnection *)peerConnection
+    didChangeStandardizedIceConnectionState:(RTCIceConnectionState)newState;
+
 /** Called any time the PeerConnectionState changes. */
 - (void)peerConnection:(RTCPeerConnection *)peerConnection
     didChangeConnectionState:(RTCPeerConnectionState)newState;
@@ -183,7 +188,23 @@ RTC_OBJC_EXPORT
  */
 @property(nonatomic, readonly) NSArray<RTCRtpTransceiver *> *transceivers;
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+/** Initialize using an existing instance with a custom observer.
+ */
+- (void *)initializeWithCustomObserver:(void *)customObserver
+                               factory:(RTCPeerConnectionFactory *)factory
+                         configuration:(RTCConfiguration *)configuration
+                           constraints:(RTCMediaConstraints *)constraints;
+
+/** Given a native WebRTC stream, create an objc sdk RTCMediaStream.
+ */
+- (RTCMediaStream *)createStreamFromNative:(void *)nativeStream;
+
+/** Free resources for a RTCMediaStream that was allocated with
+ *  createStreamFromNative().
+ */
+- (void)releaseStream:(RTCMediaStream *)stream;
 
 /** Sets the PeerConnection's global configuration to |configuration|.
  *  Any changes to STUN/TURN servers or ICE candidate policy will affect the
