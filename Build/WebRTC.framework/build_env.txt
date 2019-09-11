@@ -3,17 +3,17 @@
 To track down potential future issues, we log some of our build environment details.
 
 webrtc git branch:
-(HEAD detached at 9863f3d246)
+(HEAD detached at branch-heads/m77)
 
 webrtc git sha:
-9863f3d246e2da7a2e1f42bbc5757f6af5ec5682
+ad73985e75684cb4ac4dadb9d3d86ad0d66612a0
 
 build_script git sha:
-a6e32b2a6e0a53598fd909ad6e5f02f3f711efd6
+93d3f0ae37dfb43c933dc9ddf9bb913f6a17f19e
 
 xcodebuild -version:
-Xcode 10.2.1
-Build version 10E1001
+Xcode 10.3
+Build version 10G8
 
 xcode-select -p:
 /Applications/Xcode.app/Contents/Developer
@@ -21,15 +21,15 @@ xcode-select -p:
 gcc -v:
 Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/c++/4.2.1
 Apple LLVM version 10.0.1 (clang-1001.0.46.4)
-Target: x86_64-apple-darwin18.6.0
+Target: x86_64-apple-darwin18.7.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 osx_version_details:
 ProductName:	Mac OS X
-ProductVersion:	10.14.5
-BuildVersion:	18F132
+ProductVersion:	10.14.6
+BuildVersion:	18G95
 
 hostname:
-oak
+pecan
 
