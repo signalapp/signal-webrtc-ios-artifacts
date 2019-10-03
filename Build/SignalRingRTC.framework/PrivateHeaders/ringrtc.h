@@ -19,14 +19,6 @@
 
 #if defined(TARGET_OS_IOS)
 /**
- * For convenience, define jlong as a native i64 type for easier
- * compatibility with JNI implementation.
- */
-typedef int64_t jlong;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
  * Structure for passing buffers (such as strings) to Swift.
  */
 typedef struct {
@@ -47,6 +39,9 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing multiple Ice Candidates to Swift.
+ */
 typedef struct {
     const IOSIceCandidate *candidates;
     size_t count;
@@ -60,11 +55,11 @@ typedef struct {
 typedef struct {
     void *object;
     void (*destroy)(void *object);
-    void (*onSendOffer)(void *object, int64_t callId, IOSByteSlice offer);
-    void (*onSendAnswer)(void *object, int64_t callId, IOSByteSlice answer);
-    void (*onSendIceCandidates)(void *object, int64_t callId, const IOSIceCandidateArray *iceCandidate);
-    void (*onSendHangup)(void *object, int64_t callId);
-    void (*onSendBusy)(void *object, int64_t callId);
+    void (*onSendOffer)(void *object, uint64_t callId, IOSByteSlice offer);
+    void (*onSendAnswer)(void *object, uint64_t callId, IOSByteSlice answer);
+    void (*onSendIceCandidates)(void *object, uint64_t callId, const IOSIceCandidateArray *iceCandidate);
+    void (*onSendHangup)(void *object, uint64_t callId);
+    void (*onSendBusy)(void *object, uint64_t callId);
 } IOSRecipient;
 #endif
 
@@ -73,7 +68,7 @@ typedef struct {
  * Structure for passing common configuration options.
  */
 typedef struct {
-    int64_t callId;
+    uint64_t callId;
     bool outBound;
     IOSRecipient recipient;
 } IOSCallConfig;
@@ -83,13 +78,29 @@ typedef struct {
 /**
  * Observer object for interfacing with Swift.
  * iOS CallConnectionObserver
+ * Wrapper around a Swift object.
  */
 typedef struct {
+    /**
+     * Raw Swift object pointer.
+     */
     void *object;
+    /**
+     * Swift object clean up method.
+     */
     void (*destroy)(void *object);
-    void (*onCallEvent)(void *object, int64_t callId, int32_t callEvent);
-    void (*onCallError)(void *object, int64_t callId, IOSByteSlice errorString);
-    void (*onAddStream)(void *object, int64_t callId, void *stream);
+    /**
+     * Swift call event callback method.
+     */
+    void (*onCallEvent)(void *object, uint64_t callId, int32_t callEvent);
+    /**
+     * Swift call error callback method.
+     */
+    void (*onCallError)(void *object, uint64_t callId, IOSByteSlice errorString);
+    /**
+     * Swift add stream callback method.
+     */
+    void (*onAddStream)(void *object, uint64_t callId, void *stream);
 } IOSObserver;
 #endif
 
@@ -105,30 +116,30 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jlong Java_org_signal_ringrtc_CallConnectionFactory_nativeCreateCallConnection(JNIEnv env,
-                                                                               JClass class_,
-                                                                               jlong native_factory,
-                                                                               JObject call_config,
-                                                                               jlong native_observer,
-                                                                               JObject rtc_config,
-                                                                               JObject media_constraints,
-                                                                               JObject ssl_cert_verifier);
+jlong Java_org_signal_ringrtc_CallConnectionFactory_ringrtcCreateCallConnection(JNIEnv env,
+                                                                                JClass class_,
+                                                                                jlong native_factory,
+                                                                                JObject call_config,
+                                                                                jlong native_observer,
+                                                                                JObject rtc_config,
+                                                                                JObject media_constraints,
+                                                                                JObject ssl_cert_verifier);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jlong Java_org_signal_ringrtc_CallConnectionFactory_nativeCreateCallConnectionFactory(JNIEnv env,
-                                                                                      JClass _class,
-                                                                                      jlong peer_connection_factory);
+jlong Java_org_signal_ringrtc_CallConnectionFactory_ringrtcCreateCallConnectionFactory(JNIEnv env,
+                                                                                       JClass _class,
+                                                                                       jlong native_pc_factory);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnectionFactory_nativeFreeFactory(JNIEnv env,
-                                                                     JClass _class,
-                                                                     jlong factory);
+void Java_org_signal_ringrtc_CallConnectionFactory_ringrtcFreeFactory(JNIEnv env,
+                                                                      JClass _class,
+                                                                      jlong factory);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnectionFactory_nativeInitialize(JNIEnv env, JClass _class);
+void Java_org_signal_ringrtc_CallConnectionFactory_ringrtcInitialize(JNIEnv env, JClass _class);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -184,14 +195,6 @@ void Java_org_signal_ringrtc_CallConnection_nativeHandleOfferAnswer(JNIEnv env,
 void Java_org_signal_ringrtc_CallConnection_nativeHangUp(JNIEnv env,
                                                          JObject _object,
                                                          jlong call_connection);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeSendBusy(JNIEnv env,
-                                                           JObject _object,
-                                                           jlong call_connection,
-                                                           JObject recipient,
-                                                           jlong call_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -255,7 +258,7 @@ void *ringRtcCreateCallConnectionFactory(void *appCallConnectionFactory);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcCreateCallConnectionObserver(IOSObserver observer, int64_t callId);
+void *ringRtcCreateCallConnectionObserver(IOSObserver observer, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -295,7 +298,7 @@ void *ringRtcReceivedOffer(void *callConnection,
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcSendBusy(void *callConnection, int64_t callId);
+void *ringRtcSendBusy(void *callConnection, uint64_t _callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
