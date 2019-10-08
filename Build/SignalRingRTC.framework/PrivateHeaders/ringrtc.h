@@ -78,6 +78,7 @@ typedef struct {
 /**
  * Observer object for interfacing with Swift.
  * iOS CallConnectionObserver
+ *
  * Wrapper around a Swift object.
  */
 typedef struct {
@@ -272,6 +273,7 @@ void *ringRtcHangup(void *callConnection);
 #if defined(TARGET_OS_IOS)
 /**
  * Library initialization routine.
+ *
  * Sets up the logging infrastructure.
  */
 void *ringRtcInitialize(IOSLogger logObject);
