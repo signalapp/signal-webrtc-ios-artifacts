@@ -180,6 +180,12 @@ jlong Java_org_signal_ringrtc_CallConnection_nativeCreateCallConnectionObserver(
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallConnection_nativeDispose(JNIEnv env,
+                                                          JObject _object,
+                                                          jlong call_connection);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 jlong Java_org_signal_ringrtc_CallConnection_nativeGetNativePeerConnection(JNIEnv env,
                                                                            JClass _class,
                                                                            jlong call_connection);
@@ -260,6 +266,10 @@ void *ringRtcCreateCallConnectionFactory(void *appCallConnectionFactory);
 
 #if defined(TARGET_OS_IOS)
 void *ringRtcCreateCallConnectionObserver(IOSObserver observer, uint64_t callId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringRtcDispose(void *callConnection);
 #endif
 
 #if defined(TARGET_OS_IOS)
