@@ -3,13 +3,13 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-0.1.5
+0.2.0
 
 ringrtc git branch:
-(HEAD detached at v0.1.5)
+(HEAD detached at v0.2.0)
 
 ringrtc git sha:
-b9f60d694624e4a89c528e7d2518edc6cff81198
+89b0e4bac4a1da2c772f210c2f20d7f743ce709f
 
 webrtc version:
 m78
@@ -18,10 +18,10 @@ webrtc git branch:
 patched-src
 
 webrtc git sha:
-589e48d9c170b6c9d3f0c8fcfb338c012cf54ccc
+c4b7370c9d622d29d0ee8f96691b5d17e89bebab
 
 build_script git sha:
-b9f60d694624e4a89c528e7d2518edc6cff81198
+89b0e4bac4a1da2c772f210c2f20d7f743ce709f
 
 rustc --version:
 rustc 1.38.0 (625451e37 2019-09-23)
@@ -30,24 +30,24 @@ cargo --version:
 cargo 1.38.0 (23ef9a4ef 2019-08-20)
 
 xcodebuild -version:
-Xcode 10.3
-Build version 10G8
+Xcode 11.2.1
+Build version 11B500
 
 xcode-select -p:
-/Applications/Xcode.app/Contents/Developer
+/Applications/Xcode-11.2.1.app/Contents/Developer
 
 gcc -v:
-Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/c++/4.2.1
-Apple LLVM version 10.0.1 (clang-1001.0.46.4)
-Target: x86_64-apple-darwin18.7.0
+Configured with: --prefix=/Applications/Xcode-11.2.1.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode-11.2.1.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
+Apple clang version 11.0.0 (clang-1100.0.33.12)
+Target: x86_64-apple-darwin19.0.0
 Thread model: posix
-InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+InstalledDir: /Applications/Xcode-11.2.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 osx_version_details:
 ProductName:	Mac OS X
-ProductVersion:	10.14.6
-BuildVersion:	18G103
+ProductVersion:	10.15.1
+BuildVersion:	19B88
 
 hostname:
-Matthew’s MacBook Pro
+Nora’s MacBook Pro (Work)
 
