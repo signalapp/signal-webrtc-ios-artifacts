@@ -140,6 +140,11 @@ void Java_org_signal_ringrtc_CallConnectionFactory_ringrtcFreeFactory(JNIEnv env
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+jobject Java_org_signal_ringrtc_CallConnectionFactory_ringrtcGetBuildInfo(JNIEnv env,
+                                                                          JClass _class);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallConnectionFactory_ringrtcInitialize(JNIEnv env, JClass _class);
 #endif
 
