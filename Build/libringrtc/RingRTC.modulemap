@@ -1,0 +1,10 @@
+framework module SignalRingRTC {
+      umbrella header "SignalRingRTC.h"
+      export *
+      module * { export * }
+      explicit module SignalRingRTC_Private {
+          header "ringrtc.h"
+          link "ringrtc"
+          export *
+      }
+  }
