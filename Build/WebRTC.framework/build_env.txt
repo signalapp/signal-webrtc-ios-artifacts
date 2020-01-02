@@ -18,7 +18,7 @@ webrtc git branch:
 patched-src
 
 webrtc git sha:
-275a575e378888a358805653e54b520b65a19107
+e4af23c8633498eb63723af8ebaac7312a0674a3
 
 build_script git sha:
 e474baf07d4f471659e133a0383b8d5a0298cfc3
@@ -30,18 +30,18 @@ cargo --version:
 cargo 1.40.0 (bc8e4c8be 2019-11-22)
 
 xcodebuild -version:
-Xcode 11.3
-Build version 11C29
+Xcode 10.3
+Build version 10G8
 
 xcode-select -p:
-/Applications/Xcode-11.3.app/Contents/Developer
+/Applications/Xcode.app/Contents/Developer
 
 gcc -v:
-Configured with: --prefix=/Applications/Xcode-11.3.app/Contents/Developer/usr --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
-Apple clang version 11.0.0 (clang-1100.0.33.16)
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include/c++/4.2.1
+Apple LLVM version 10.0.1 (clang-1001.0.46.4)
 Target: x86_64-apple-darwin18.7.0
 Thread model: posix
-InstalledDir: /Applications/Xcode-11.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 osx_version_details:
 ProductName:	Mac OS X
