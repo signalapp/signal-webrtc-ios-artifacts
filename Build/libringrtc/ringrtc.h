@@ -17,6 +17,101 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/**
+ * Incomplete type for C++ PeerConnectionInterface.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiPeerConnectionInterface;
+
+/**
+ * Opaque pointer type for an object of C++ origin.
+ */
+typedef const void *CppObject;
+
+/**
+ * Incomplete type for C++ webrtc::rffi::CreateSessionDescriptionObserverRffi
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiCreateSessionDescriptionObserver;
+
+/**
+ * Opaque pointer type for an object of Rust origin.
+ */
+typedef const void *RustObject;
+
+/**
+ * Incomplete type for C++ DataChannelInterface.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiDataChannelInterface;
+
+/**
+ * Rust friendly version of WebRTC DataChannelInit.
+ *
+ * The definition is taken from [WebRTC RTCDataChannelInit]
+ * (https://www.w3.org/TR/webrtc/#idl-def-rtcdatachannelinit).
+ *
+ * See `struct DataChannelInit1 in
+ * webrtc/src/api/data_channel_interface.h
+ */
+typedef struct {
+    bool reliable;
+    bool ordered;
+    int maxRetransmitTime;
+    int maxRetransmits;
+    const char *protocol;
+    bool negotiated;
+    int id;
+} RffiDataChannelInit;
+
+/**
+ * Incomplete type for C++ DataChannelObserver.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiDataChannelObserverInterface;
+
+#if defined(TARGET_OS_ANDROID)
+/**
+ * Incomplete type for C++ JavaMediaStream.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiJavaMediaStream;
+#endif
+
+/**
+ * Incomplete type for WebRTC C++ MediaStreamInterface.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiMediaStreamInterface;
+
+/**
+ * Incomplete type for C++ PeerConnectionObserver.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiPeerConnectionObserverInterface;
+
+/**
+ * Incomplete type for SessionDescriptionInterface, used by
+ * CreateSessionDescriptionObserver callbacks.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiSessionDescriptionInterface;
+
+/**
+ * Incomplete type for C++ CreateSessionDescriptionObserverRffi
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiSetSessionDescriptionObserver;
+
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing buffers (such as strings) to Swift.
@@ -24,7 +119,7 @@
 typedef struct {
     const uint8_t *bytes;
     size_t len;
-} IOSByteSlice;
+} AppByteSlice;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -32,10 +127,10 @@ typedef struct {
  * Structure for passing Ice Candidates to/from Swift.
  */
 typedef struct {
-    IOSByteSlice sdpMid;
+    AppByteSlice sdpMid;
     int32_t sdpMLineIndex;
-    IOSByteSlice sdp;
-} IOSIceCandidate;
+    AppByteSlice sdp;
+} AppIceCandidate;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -43,43 +138,45 @@ typedef struct {
  * Structure for passing multiple Ice Candidates to Swift.
  */
 typedef struct {
-    const IOSIceCandidate *candidates;
+    const AppIceCandidate *candidates;
     size_t count;
-} IOSIceCandidateArray;
+} AppIceCandidateArray;
 #endif
 
 #if defined(TARGET_OS_IOS)
 /**
- * Recipient object for interfacing with Swift.
+ * Structure for passing connection details from the application.
  */
 typedef struct {
     void *object;
+    void *pc;
+    /**
+     * Swift object clean up method.
+     */
     void (*destroy)(void *object);
-    void (*onSendOffer)(void *object, uint64_t callId, IOSByteSlice offer);
-    void (*onSendAnswer)(void *object, uint64_t callId, IOSByteSlice answer);
-    void (*onSendIceCandidates)(void *object, uint64_t callId, const IOSIceCandidateArray *iceCandidate);
-    void (*onSendHangup)(void *object, uint64_t callId);
-    void (*onSendBusy)(void *object, uint64_t callId);
-} IOSRecipient;
+} AppConnectionInterface;
 #endif
 
 #if defined(TARGET_OS_IOS)
 /**
- * Structure for passing common configuration options.
+ * Structure for passing media stream instances from the application.
  */
 typedef struct {
-    uint64_t callId;
-    bool outBound;
-    IOSRecipient recipient;
-} IOSCallConfig;
+    void *object;
+    /**
+     * Swift object clean up method.
+     */
+    void (*destroy)(void *object);
+    /**
+     * Returns a pointer to a RTCMediaStream object.
+     */
+    void *(*createMediaStream)(void *object, void *nativeStream);
+} AppMediaStreamInterface;
 #endif
 
 #if defined(TARGET_OS_IOS)
 /**
- * Observer object for interfacing with Swift.
- * iOS CallConnectionObserver
- *
- * Wrapper around a Swift object.
+ * iOS Interface for communicating with the Swift application.
  */
 typedef struct {
     /**
@@ -91,18 +188,55 @@ typedef struct {
      */
     void (*destroy)(void *object);
     /**
-     * Swift call event callback method.
+     *
      */
-    void (*onCallEvent)(void *object, uint64_t callId, int32_t callEvent);
+    void (*onStartCall)(void *object, const void *remote, uint64_t callId, bool isOutgoing);
     /**
-     * Swift call error callback method.
+     * Swift event callback method.
      */
-    void (*onCallError)(void *object, uint64_t callId, IOSByteSlice errorString);
+    void (*onEvent)(void *object, const void *remote, int32_t event);
     /**
-     * Swift add stream callback method.
+     *
      */
-    void (*onAddStream)(void *object, uint64_t callId, void *stream);
-} IOSObserver;
+    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, AppByteSlice offer);
+    /**
+     *
+     */
+    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, AppByteSlice answer);
+    /**
+     *
+     */
+    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, const AppIceCandidateArray *candidates);
+    /**
+     *
+     */
+    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast);
+    /**
+     *
+     */
+    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast);
+    /**
+     *
+     */
+    AppConnectionInterface (*onCreateConnectionInterface)(void *object, void *observer, uint32_t deviceId, void *context);
+    /**
+     * Request that the application create an application Media Stream object
+     * associated with the given application Connection object.
+     */
+    AppMediaStreamInterface (*onCreateMediaStreamInterface)(void *object, void *connection);
+    /**
+     *
+     */
+    void (*onConnectMedia)(void *object, const void *remote, void *context, const void *stream);
+    /**
+     *
+     */
+    bool (*onCompareRemotes)(void *object, const void *remote1, const void *remote2);
+    /**
+     *
+     */
+    void (*onCallConcluded)(void *object, const void *remote);
+} AppInterface;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -112,218 +246,349 @@ typedef struct {
 typedef struct {
     void *object;
     void (*destroy)(void *object);
-    void (*log)(void *object, IOSByteSlice message, IOSByteSlice file, IOSByteSlice function, int32_t line, int8_t level);
+    void (*log)(void *object, AppByteSlice message, AppByteSlice file, AppByteSlice function, int32_t line, int8_t level);
 } IOSLogger;
 #endif
 
-#if defined(TARGET_OS_ANDROID)
-jlong Java_org_signal_ringrtc_CallConnectionFactory_ringrtcCreateCallConnection(JNIEnv env,
-                                                                                JClass class_,
-                                                                                jlong native_factory,
-                                                                                JObject call_config,
-                                                                                jlong native_observer,
-                                                                                JObject rtc_config,
-                                                                                JObject media_constraints,
-                                                                                JObject ssl_cert_verifier);
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for holding call context details on behalf of the application.
+ */
+typedef struct {
+    void *object;
+    /**
+     * Swift object clean up method.
+     */
+    void (*destroy)(void *object);
+} AppCallContext;
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jlong Java_org_signal_ringrtc_CallConnectionFactory_ringrtcCreateCallConnectionFactory(JNIEnv env,
-                                                                                       JClass _class,
-                                                                                       jlong native_pc_factory);
+void Java_org_signal_ringrtc_CallManager_ringrtcAcceptCall(JNIEnv env,
+                                                           JObject _object,
+                                                           jlong call_manager,
+                                                           jlong call_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnectionFactory_ringrtcFreeFactory(JNIEnv env,
-                                                                      JClass _class,
-                                                                      jlong factory);
+void Java_org_signal_ringrtc_CallManager_ringrtcCall(JNIEnv env,
+                                                     JObject _object,
+                                                     jlong call_manager,
+                                                     JObject jni_remote);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jobject Java_org_signal_ringrtc_CallConnectionFactory_ringrtcGetBuildInfo(JNIEnv env,
-                                                                          JClass _class);
+void Java_org_signal_ringrtc_CallManager_ringrtcClose(JNIEnv env,
+                                                      JObject _object,
+                                                      jlong call_manager);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnectionFactory_ringrtcInitialize(JNIEnv env, JClass _class);
+jlong Java_org_signal_ringrtc_CallManager_ringrtcCreateCallManager(JNIEnv env,
+                                                                   JClass _class,
+                                                                   JObject jni_call_manager);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeAcceptOffer(JNIEnv env,
-                                                              JObject jcall_connection,
-                                                              jlong call_connection,
-                                                              JString offer);
+jlong Java_org_signal_ringrtc_CallManager_ringrtcCreatePeerConnection(JNIEnv env,
+                                                                      JObject _object,
+                                                                      jlong peer_connection_factory,
+                                                                      jlong native_connection,
+                                                                      JObject jni_rtc_config,
+                                                                      JObject jni_media_constraints);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeAddIceCandidate(JNIEnv env,
-                                                                  JObject _object,
-                                                                  jlong call_connection,
-                                                                  JString sdp_mid,
-                                                                  jint sdp_mline_index,
-                                                                  JString sdp);
+void Java_org_signal_ringrtc_CallManager_ringrtcDrop(JNIEnv env,
+                                                     JObject _object,
+                                                     jlong call_manager,
+                                                     jlong call_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeAnswerCall(JNIEnv env,
-                                                             JObject _object,
-                                                             jlong call_connection);
+jobject Java_org_signal_ringrtc_CallManager_ringrtcGetActiveCallContext(JNIEnv env,
+                                                                        JObject _object,
+                                                                        jlong call_manager);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeClose(JNIEnv env,
+jobject Java_org_signal_ringrtc_CallManager_ringrtcGetActiveConnection(JNIEnv env,
+                                                                       JObject _object,
+                                                                       jlong call_manager);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+jobject Java_org_signal_ringrtc_CallManager_ringrtcGetBuildInfo(JNIEnv env, JClass _class);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcHangup(JNIEnv env,
+                                                       JObject _object,
+                                                       jlong call_manager);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcInitialize(JNIEnv env, JClass _class);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcMessageSendFailure(JNIEnv env,
+                                                                   JObject _object,
+                                                                   jlong call_manager,
+                                                                   jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcMessageSent(JNIEnv env,
+                                                            JObject _object,
+                                                            jlong call_manager,
+                                                            jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
                                                         JObject _object,
-                                                        jlong call_connection);
+                                                        jlong call_manager,
+                                                        jlong call_id,
+                                                        JObject jni_call_context,
+                                                        JObject jni_remote_devices);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jlong Java_org_signal_ringrtc_CallConnection_nativeCreateCallConnectionObserver(JNIEnv env,
-                                                                                JClass _class,
-                                                                                JObject observer,
-                                                                                jlong call_id,
-                                                                                JObject recipient);
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
+                                                               JObject _object,
+                                                               jlong call_manager,
+                                                               jlong call_id,
+                                                               jint remote_device,
+                                                               JString jni_answer);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeDispose(JNIEnv env,
-                                                          JObject _object,
-                                                          jlong call_connection);
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedBusy(JNIEnv env,
+                                                             JObject _object,
+                                                             jlong call_manager,
+                                                             jlong call_id,
+                                                             jint remote_device);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jlong Java_org_signal_ringrtc_CallConnection_nativeGetNativePeerConnection(JNIEnv env,
-                                                                           JClass _class,
-                                                                           jlong call_connection);
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHangup(JNIEnv env,
+                                                               JObject _object,
+                                                               jlong call_manager,
+                                                               jlong call_id,
+                                                               jint remote_device);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeHandleOfferAnswer(JNIEnv env,
-                                                                    JObject _object,
-                                                                    jlong call_connection,
-                                                                    JString session_desc);
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedIceCandidates(JNIEnv env,
+                                                                      JObject _object,
+                                                                      jlong call_manager,
+                                                                      jlong call_id,
+                                                                      jint remote_device,
+                                                                      JObject jni_ice_candidates);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeHangUp(JNIEnv env,
-                                                         JObject _object,
-                                                         jlong call_connection);
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong call_id,
+                                                              JObject jni_remote,
+                                                              jint remote_device,
+                                                              JString jni_offer,
+                                                              jlong timestamp);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeSendOffer(JNIEnv env,
-                                                            JObject jcall_connection,
-                                                            jlong call_connection);
+void Java_org_signal_ringrtc_CallManager_ringrtcReset(JNIEnv env,
+                                                      JObject _object,
+                                                      jlong call_manager);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallConnection_nativeSendVideoStatus(JNIEnv env,
-                                                                  JObject _object,
-                                                                  jlong call_connection,
-                                                                  jboolean enabled);
+void Java_org_signal_ringrtc_CallManager_ringrtcSetVideoEnable(JNIEnv env,
+                                                               JObject _object,
+                                                               jlong call_manager,
+                                                               jboolean enable);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-jboolean Java_org_signal_ringrtc_CallConnection_nativeValidateResponseState(JNIEnv env,
-                                                                            JObject _object,
-                                                                            jlong call_connection);
-#endif
-
-#if defined(TARGET_OS_IOS)
 /**
- * Create a 'native' WebRTC via iOS Application Call Connection,
- * passing in a custom observer implemented by RingRTC.
+ * Export the nativeCreatepeerconnection() call from the
+ * org.webrtc.PeerConnectionFactory class.
  */
-extern void *appCreatePeerConnection(void *appFactory,
-                                     void *appCallConnection,
-                                     void *rtcConfig,
-                                     void *rtcConstraints,
-                                     void *customObserver);
+extern jlong Java_org_webrtc_PeerConnectionFactory_nativeCreatePeerConnection(JNIEnv env,
+                                                                              JClass class_,
+                                                                              jlong factory,
+                                                                              JObject rtcConfig,
+                                                                              JObject constraints,
+                                                                              jlong nativeObserver,
+                                                                              JObject sslCertificateVerifier);
+#endif
+
+extern bool Rust_addIceCandidate(const RffiPeerConnectionInterface *pc_interface,
+                                 const char *sdp_mid,
+                                 int32_t sdp_mline_index,
+                                 const char *sdp);
+
+extern void Rust_addRef(CppObject ref_counted_pointer);
+
+extern void Rust_createAnswer(const RffiPeerConnectionInterface *pc_interface,
+                              const RffiCreateSessionDescriptionObserver *csd_observer);
+
+extern const RffiCreateSessionDescriptionObserver *Rust_createCreateSessionDescriptionObserver(RustObject csd_observer,
+                                                                                               const void *csd_observer_cb);
+
+extern const RffiDataChannelInterface *Rust_createDataChannel(const RffiPeerConnectionInterface *pc_interface,
+                                                              const char *label,
+                                                              const RffiDataChannelInit *config);
+
+extern const RffiDataChannelObserverInterface *Rust_createDataChannelObserver(RustObject call_connection,
+                                                                              CppObject dc_observer_cb);
+
+#if defined(TARGET_OS_ANDROID)
+extern const RffiJavaMediaStream *Rust_createJavaMediaStream(const RffiMediaStreamInterface *media_stream_interface);
+#endif
+
+extern void Rust_createOffer(const RffiPeerConnectionInterface *pc_interface,
+                             const RffiCreateSessionDescriptionObserver *csd_observer);
+
+extern const RffiPeerConnectionObserverInterface *Rust_createPeerConnectionObserver(RustObject cc_ptr,
+                                                                                    CppObject pc_observer_cb);
+
+extern const RffiSessionDescriptionInterface *Rust_createSessionDescriptionAnswer(const char *description);
+
+extern const RffiSessionDescriptionInterface *Rust_createSessionDescriptionOffer(const char *description);
+
+extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
+                                                                                         const void *ssd_observer_cb);
+
+extern const char *Rust_dataChannelGetLabel(const RffiDataChannelInterface *dc_interface);
+
+extern bool Rust_dataChannelSend(const RffiDataChannelInterface *dc_interface,
+                                 const uint8_t *buffer,
+                                 size_t len,
+                                 bool binary);
+
+#if defined(TARGET_OS_ANDROID)
+extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_jms_interface);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+extern jobject Rust_getObjectJavaMediaStream(const RffiJavaMediaStream *rffi_jms_interface);
+#endif
+
+extern const char *Rust_getOfferDescription(const RffiSessionDescriptionInterface *offer);
+
+#if defined(TARGET_OS_ANDROID)
+extern const RffiPeerConnectionInterface *Rust_getPeerConnectionInterface(int64_t jni_owned_pc);
+#endif
+
+extern void Rust_registerDataChannelObserver(const RffiDataChannelInterface *dc_interface,
+                                             const RffiDataChannelObserverInterface *dc_observer);
+
+extern void Rust_releaseRef(CppObject ref_counted_pointer);
+
+extern void Rust_setLocalDescription(const RffiPeerConnectionInterface *pc_interface,
+                                     const RffiSetSessionDescriptionObserver *ssd_observer,
+                                     const RffiSessionDescriptionInterface *desc);
+
+extern void Rust_setRemoteDescription(const RffiPeerConnectionInterface *pc_interface,
+                                      const RffiSetSessionDescriptionObserver *ssd_observer,
+                                      const RffiSessionDescriptionInterface *desc);
+
+extern void Rust_unregisterDataChannelObserver(const RffiDataChannelInterface *dc_interface,
+                                               const RffiDataChannelObserverInterface *dc_observer);
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcAccept(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-extern void *appCreateStreamFromNative(const void *appCallConnection, void *nativeStream);
+void *ringrtcCall(void *callManager, const void *appRemote);
 #endif
 
 #if defined(TARGET_OS_IOS)
-extern void appReleaseStream(const void *appCallConnection, void *appStream);
+void *ringrtcClose(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcAccept(void *callConnection);
+void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcClose(void *callConnection);
+void *ringrtcDrop(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcCreateCallConnection(void *callConnectionFactory,
-                                  void *appCallConnection,
-                                  IOSCallConfig callConfig,
-                                  void *callConnectionObserver,
-                                  void *rtcConfig,
-                                  void *rtcConstraints);
+void *ringrtcGetActiveCallContext(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcCreateCallConnectionFactory(void *appCallConnectionFactory);
+void *ringrtcGetActiveConnection(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcCreateCallConnectionObserver(IOSObserver observer, uint64_t callId);
+void *ringrtcHangup(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcDispose(void *callConnection);
+void *ringrtcInitialize(IOSLogger logObject);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcFreeFactory(void *factory);
+void *ringrtcMessageSendFailure(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcHangup(void *callConnection);
+void *ringrtcMessageSent(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Library initialization routine.
- *
- * Sets up the logging infrastructure.
- */
-void *ringRtcInitialize(IOSLogger logObject);
+void *ringrtcProceed(void *callManager,
+                     uint64_t callId,
+                     AppCallContext appCallContext,
+                     const uint32_t *appRemoteDevices,
+                     size_t appRemoteDevicesLen);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcReceivedAnswer(void *callConnection, const uint8_t *bytes, size_t len);
+void *ringrtcReceivedAnswer(void *callManager,
+                            uint64_t callId,
+                            uint32_t remoteDevice,
+                            AppByteSlice answer);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcReceivedIceCandidate(void *callConnection,
-                                  const uint8_t *sdpBytes,
-                                  size_t sdpLen,
-                                  int32_t lineIndex,
-                                  const uint8_t *sdpMidBytes,
-                                  size_t sdpMidLen);
+void *ringrtcReceivedBusy(void *callManager, uint64_t callId, uint32_t remoteDevice);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcReceivedOffer(void *callConnection,
-                           void *appCallConnection,
-                           const uint8_t *bytes,
-                           size_t len);
+void *ringrtcReceivedHangup(void *callManager, uint64_t callId, uint32_t remoteDevice);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcSendBusy(void *callConnection, uint64_t _callId);
+void *ringrtcReceivedIceCandidate(void *callManager,
+                                  uint64_t callId,
+                                  uint32_t remoteDevice,
+                                  AppIceCandidate app_candidate);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcSendOffer(void *callConnection, void *appCallConnection);
+void *ringrtcReceivedOffer(void *callManager,
+                           uint64_t callId,
+                           const void *appRemote,
+                           uint32_t remoteDevice,
+                           AppByteSlice offer,
+                           uint64_t timestamp);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringRtcSendVideoStatus(void *callConnection, bool enabled);
+void *ringrtcReset(void *callManager);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcSetVideoEnable(void *callManager, bool enable);
 #endif
 
 #endif /* CBINDGEN_BINDINGS_H */
