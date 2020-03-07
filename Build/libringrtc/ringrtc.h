@@ -112,6 +112,13 @@ typedef struct {
     uint8_t _private[0];
 } RffiSetSessionDescriptionObserver;
 
+/**
+ * Incomplete type for C++ IceGathererInterface.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiIceGathererInterface;
+
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing buffers (such as strings) to Swift.
@@ -198,23 +205,27 @@ typedef struct {
     /**
      *
      */
-    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, AppByteSlice offer);
+    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, AppByteSlice offer);
     /**
      *
      */
-    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, AppByteSlice answer);
+    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, AppByteSlice answer);
     /**
      *
      */
-    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, const AppIceCandidateArray *candidates);
+    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, const AppIceCandidateArray *candidates);
     /**
      *
      */
-    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast);
+    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast);
     /**
      *
      */
-    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast);
+    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast);
+    /**
+     *
+     */
+    void (*onSendAccepted)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, uint32_t acceptedDeviceId);
     /**
      *
      */
@@ -351,7 +362,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
                                                         jlong call_manager,
                                                         jlong call_id,
                                                         JObject jni_call_context,
-                                                        JObject jni_remote_devices);
+                                                        JObject jni_remote_devices,
+                                                        jboolean jni_enable_forking);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -463,6 +475,8 @@ extern const RffiSessionDescriptionInterface *Rust_createSessionDescriptionOffer
 extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
                                                                                          const void *ssd_observer_cb);
 
+extern const RffiIceGathererInterface *Rust_createSharedIceGatherer(const RffiPeerConnectionInterface *pc_interface);
+
 extern const char *Rust_dataChannelGetLabel(const RffiDataChannelInterface *dc_interface);
 
 extern bool Rust_dataChannelSend(const RffiDataChannelInterface *dc_interface,
@@ -499,6 +513,9 @@ extern void Rust_setRemoteDescription(const RffiPeerConnectionInterface *pc_inte
 
 extern void Rust_unregisterDataChannelObserver(const RffiDataChannelInterface *dc_interface,
                                                const RffiDataChannelObserverInterface *dc_observer);
+
+extern bool Rust_useSharedIceGatherer(const RffiPeerConnectionInterface *pc_interface,
+                                      const RffiIceGathererInterface *ice_gatherer);
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcAccept(void *callManager, uint64_t callId);
@@ -548,8 +565,17 @@ void *ringrtcMessageSent(void *callManager, uint64_t callId);
 void *ringrtcProceed(void *callManager,
                      uint64_t callId,
                      AppCallContext appCallContext,
+                     uint32_t appLocalDevice,
                      const uint32_t *appRemoteDevices,
-                     size_t appRemoteDevicesLen);
+                     size_t appRemoteDevicesLen,
+                     bool enable_forking);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcReceivedAccepted(void *callManager,
+                              uint64_t callId,
+                              uint32_t remoteDevice,
+                              uint32_t acceptedDeviceId);
 #endif
 
 #if defined(TARGET_OS_IOS)
