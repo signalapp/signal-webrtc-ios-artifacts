@@ -195,23 +195,19 @@ RTC_OBJC_EXPORT
  */
 @property(nonatomic, readonly) NSArray<RTCRtpTransceiver *> *transceivers;
 
-- (instancetype)init NS_DESIGNATED_INITIALIZER;
-
-/** Initialize using an existing instance with a custom observer.
- */
-- (void *)initializeWithCustomObserver:(void *)customObserver
-                               factory:(RTCPeerConnectionFactory *)factory
-                         configuration:(RTCConfiguration *)configuration
-                           constraints:(RTCMediaConstraints *)constraints;
+- (instancetype)init NS_UNAVAILABLE;
 
 /** Given a native WebRTC stream, create an objc sdk RTCMediaStream.
  */
 - (RTCMediaStream *)createStreamFromNative:(void *)nativeStream;
 
-/** Free resources for a RTCMediaStream that was allocated with
- *  createStreamFromNative().
+/** Return the underlying WebRTC Peer Connection object pointer.
  */
-- (void)releaseStream:(RTCMediaStream *)stream;
+- (void *)getRawPeerConnection;
+
+/** Releases the underlying WebRTC Peer Connection.
+ */
+- (void)releaseRawPeerConnection:(void *)rawPeerConnection;
 
 /** Sets the PeerConnection's global configuration to |configuration|.
  *  Any changes to STUN/TURN servers or ICE candidate policy will affect the

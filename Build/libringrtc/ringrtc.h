@@ -568,10 +568,10 @@ void *ringrtcReceivedHangup(void *callManager, uint64_t callId, uint32_t remoteD
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcReceivedIceCandidate(void *callManager,
-                                  uint64_t callId,
-                                  uint32_t remoteDevice,
-                                  AppIceCandidate app_candidate);
+void *ringrtcReceivedIceCandidates(void *callManager,
+                                   uint64_t callId,
+                                   uint32_t remoteDevice,
+                                   const AppIceCandidateArray *appIceCandidateArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
