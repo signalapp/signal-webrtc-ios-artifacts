@@ -3,51 +3,51 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-1.2.0
+1.3.1
 
 ringrtc git branch:
-(HEAD detached at v1.2.0)
+(HEAD detached at v1.3.1)
 
 ringrtc git sha:
-f6706dac79c9d75fa0377350bd23785ccc97ed55
+efb3ae691500a1c1f4069b7c0bdf1a0d67922a78
 
 webrtc version:
-3987
+4044
 
 webrtc git branch:
-(HEAD detached at 3987)
+(HEAD detached at 4044)
 
 webrtc git sha:
-728dfd21d932030604139e9c3ddfcc883f3db901
+7fc9d63d756185be1bd3fcccda5b8dac08973c18
 
 build_script git sha:
-f6706dac79c9d75fa0377350bd23785ccc97ed55
+efb3ae691500a1c1f4069b7c0bdf1a0d67922a78
 
 rustc --version:
-rustc 1.40.0 (73528e339 2019-12-16)
+rustc 1.41.1 (f3e1a954d 2020-02-24)
 
 cargo --version:
-cargo 1.40.0 (bc8e4c8be 2019-11-22)
+cargo 1.41.0 (626f0f40e 2019-12-03)
 
 xcodebuild -version:
 Xcode 11.3
 Build version 11C29
 
 xcode-select -p:
-/Applications/Xcode-11.3.app/Contents/Developer
+/Applications/Xcode.app/Contents/Developer
 
 gcc -v:
-Configured with: --prefix=/Applications/Xcode-11.3.app/Contents/Developer/usr --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
 Apple clang version 11.0.0 (clang-1100.0.33.16)
-Target: x86_64-apple-darwin18.7.0
+Target: x86_64-apple-darwin19.4.0
 Thread model: posix
-InstalledDir: /Applications/Xcode-11.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 osx_version_details:
 ProductName:	Mac OS X
-ProductVersion:	10.14.6
-BuildVersion:	18G103
+ProductVersion:	10.15.4
+BuildVersion:	19E266
 
 hostname:
-Nora’s MacBook Pro
+Matthew’s MacBook Pro
 
