@@ -199,11 +199,11 @@ typedef struct {
      * Swift event callback method.
      */
     void (*onEvent)(void *object, const void *remote, int32_t event);
-    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, AppByteSlice offer, int32_t callMediaType);
-    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, AppByteSlice answer);
-    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, const AppIceCandidateArray *candidates);
-    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast, int32_t hangupType, uint32_t deviceId, bool useLegacyHangupMessage);
-    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t destDeviceId, bool broadcast);
+    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice offer, int32_t callMediaType);
+    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice answer);
+    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, const AppIceCandidateArray *candidates);
+    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, int32_t hangupType, uint32_t deviceId, bool useLegacyHangupMessage);
+    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast);
     AppConnectionInterface (*onCreateConnectionInterface)(void *object, void *observer, uint32_t deviceId, void *context);
     /**
      * Request that the application create an application Media Stream object
@@ -251,7 +251,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcAcceptCall(JNIEnv env,
 void Java_org_signal_ringrtc_CallManager_ringrtcCall(JNIEnv env,
                                                      JObject _object,
                                                      jlong call_manager,
-                                                     JObject jni_remote);
+                                                     JObject jni_remote,
+                                                     jint call_media_type);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -328,6 +329,7 @@ void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
                                                         jlong call_manager,
                                                         jlong call_id,
                                                         JObject jni_call_context,
+                                                        jint local_device,
                                                         JObject jni_remote_devices,
                                                         jboolean jni_enable_forking);
 #endif
@@ -338,7 +340,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                jlong call_manager,
                                                                jlong call_id,
                                                                jint remote_device,
-                                                               JString jni_answer);
+                                                               JString jni_answer,
+                                                               jboolean remote_supports_multi_ring);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -354,7 +357,9 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHangup(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
                                                                jlong call_id,
-                                                               jint remote_device);
+                                                               jint remote_device,
+                                                               jint hangup_type,
+                                                               jint device_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -374,7 +379,10 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
                                                               JObject jni_remote,
                                                               jint remote_device,
                                                               JString jni_offer,
-                                                              jlong timestamp);
+                                                              jlong timestamp,
+                                                              jint call_media_type,
+                                                              jboolean remote_supports_multi_ring,
+                                                              jboolean jni_is_local_device_primary);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -473,6 +481,9 @@ extern void Rust_setLocalDescription(const RffiPeerConnectionInterface *pc_inter
                                      const RffiSetSessionDescriptionObserver *ssd_observer,
                                      const RffiSessionDescriptionInterface *desc);
 
+extern void Rust_setOutgoingAudioEnabled(const RffiPeerConnectionInterface *pc_interface,
+                                         bool enabled);
+
 extern void Rust_setRemoteDescription(const RffiPeerConnectionInterface *pc_interface,
                                       const RffiSetSessionDescriptionObserver *ssd_observer,
                                       const RffiSessionDescriptionInterface *desc);
@@ -542,7 +553,7 @@ void *ringrtcReceivedAnswer(void *callManager,
                             uint64_t callId,
                             uint32_t remoteDevice,
                             AppByteSlice answer,
-                            int32_t remoteFeatureLevel);
+                            bool remoteSupportsMultiRing);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -572,7 +583,7 @@ void *ringrtcReceivedOffer(void *callManager,
                            AppByteSlice offer,
                            uint64_t timestamp,
                            int32_t callMediaType,
-                           int32_t remoteFeatureLevel,
+                           bool remoteSupportsMultiRing,
                            bool isLocalDevicePrimary);
 #endif
 
