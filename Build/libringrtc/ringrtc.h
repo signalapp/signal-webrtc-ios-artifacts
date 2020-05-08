@@ -18,6 +18,13 @@
 #include <stdlib.h>
 
 /**
+ * A helper type to document when to use the legacy hangup message.
+ * By default the legacy message definition will be used when we
+ * want all devices to hangup.
+ */
+#define USE_LEGACY_HANGUP_MESSAGE true
+
+/**
  * Incomplete type for C++ PeerConnectionInterface.
  */
 typedef struct {
@@ -112,6 +119,13 @@ typedef struct {
     uint8_t _private[0];
 } RffiSetSessionDescriptionObserver;
 
+/**
+ * Incomplete type for C++ IceGathererInterface.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiIceGathererInterface;
+
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing buffers (such as strings) to Swift.
@@ -198,23 +212,23 @@ typedef struct {
     /**
      *
      */
-    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, AppByteSlice offer);
+    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice offer, int32_t callMediaType);
     /**
      *
      */
-    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, AppByteSlice answer);
+    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice answer);
     /**
      *
      */
-    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast, const AppIceCandidateArray *candidates);
+    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, const AppIceCandidateArray *candidates);
     /**
      *
      */
-    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast);
+    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, int32_t hangupType, uint32_t deviceId, bool useLegacyHangupMessage);
     /**
      *
      */
-    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t deviceId, bool broadcast);
+    void (*onSendBusy)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast);
     /**
      *
      */
@@ -274,7 +288,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcAcceptCall(JNIEnv env,
 void Java_org_signal_ringrtc_CallManager_ringrtcCall(JNIEnv env,
                                                      JObject _object,
                                                      jlong call_manager,
-                                                     JObject jni_remote);
+                                                     JObject jni_remote,
+                                                     jint call_media_type);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -351,7 +366,9 @@ void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
                                                         jlong call_manager,
                                                         jlong call_id,
                                                         JObject jni_call_context,
-                                                        JObject jni_remote_devices);
+                                                        jint local_device,
+                                                        JObject jni_remote_devices,
+                                                        jboolean jni_enable_forking);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -360,7 +377,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                jlong call_manager,
                                                                jlong call_id,
                                                                jint remote_device,
-                                                               JString jni_answer);
+                                                               JString jni_answer,
+                                                               jboolean remote_supports_multi_ring);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -376,7 +394,9 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHangup(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
                                                                jlong call_id,
-                                                               jint remote_device);
+                                                               jint remote_device,
+                                                               jint hangup_type,
+                                                               jint device_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -396,7 +416,10 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
                                                               JObject jni_remote,
                                                               jint remote_device,
                                                               JString jni_offer,
-                                                              jlong timestamp);
+                                                              jlong timestamp,
+                                                              jint call_media_type,
+                                                              jboolean remote_supports_multi_ring,
+                                                              jboolean jni_is_local_device_primary);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -463,6 +486,8 @@ extern const RffiSessionDescriptionInterface *Rust_createSessionDescriptionOffer
 extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
                                                                                          const void *ssd_observer_cb);
 
+extern const RffiIceGathererInterface *Rust_createSharedIceGatherer(const RffiPeerConnectionInterface *pc_interface);
+
 extern const char *Rust_dataChannelGetLabel(const RffiDataChannelInterface *dc_interface);
 
 extern bool Rust_dataChannelSend(const RffiDataChannelInterface *dc_interface,
@@ -493,6 +518,9 @@ extern void Rust_setLocalDescription(const RffiPeerConnectionInterface *pc_inter
                                      const RffiSetSessionDescriptionObserver *ssd_observer,
                                      const RffiSessionDescriptionInterface *desc);
 
+extern void Rust_setOutgoingAudioEnabled(const RffiPeerConnectionInterface *pc_interface,
+                                         bool enabled);
+
 extern void Rust_setRemoteDescription(const RffiPeerConnectionInterface *pc_interface,
                                       const RffiSetSessionDescriptionObserver *ssd_observer,
                                       const RffiSessionDescriptionInterface *desc);
@@ -500,12 +528,15 @@ extern void Rust_setRemoteDescription(const RffiPeerConnectionInterface *pc_inte
 extern void Rust_unregisterDataChannelObserver(const RffiDataChannelInterface *dc_interface,
                                                const RffiDataChannelObserverInterface *dc_observer);
 
+extern bool Rust_useSharedIceGatherer(const RffiPeerConnectionInterface *pc_interface,
+                                      const RffiIceGathererInterface *ice_gatherer);
+
 #if defined(TARGET_OS_IOS)
 void *ringrtcAccept(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcCall(void *callManager, const void *appRemote);
+void *ringrtcCall(void *callManager, const void *appRemote, int32_t callMediaType);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -548,15 +579,18 @@ void *ringrtcMessageSent(void *callManager, uint64_t callId);
 void *ringrtcProceed(void *callManager,
                      uint64_t callId,
                      AppCallContext appCallContext,
+                     uint32_t appLocalDevice,
                      const uint32_t *appRemoteDevices,
-                     size_t appRemoteDevicesLen);
+                     size_t appRemoteDevicesLen,
+                     bool enable_forking);
 #endif
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcReceivedAnswer(void *callManager,
                             uint64_t callId,
                             uint32_t remoteDevice,
-                            AppByteSlice answer);
+                            AppByteSlice answer,
+                            bool remoteSupportsMultiRing);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -564,7 +598,11 @@ void *ringrtcReceivedBusy(void *callManager, uint64_t callId, uint32_t remoteDev
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcReceivedHangup(void *callManager, uint64_t callId, uint32_t remoteDevice);
+void *ringrtcReceivedHangup(void *callManager,
+                            uint64_t callId,
+                            uint32_t remoteDevice,
+                            int32_t hangupType,
+                            uint32_t deviceId);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -580,7 +618,10 @@ void *ringrtcReceivedOffer(void *callManager,
                            const void *appRemote,
                            uint32_t remoteDevice,
                            AppByteSlice offer,
-                           uint64_t timestamp);
+                           uint64_t timestamp,
+                           int32_t callMediaType,
+                           bool remoteSupportsMultiRing,
+                           bool isLocalDevicePrimary);
 #endif
 
 #if defined(TARGET_OS_IOS)
