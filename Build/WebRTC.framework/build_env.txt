@@ -3,13 +3,13 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-2.3.0
+2.3.1
 
 ringrtc git branch:
-(HEAD detached at v2.3.0)
+(HEAD detached at v2.3.1)
 
 ringrtc git sha:
-7be981bfd08101af6f3f5cf5fabb7023661b41e8
+2cf3d9005a013aa9f5a027d3e57112bf59471603
 
 webrtc version:
 4103
@@ -21,7 +21,7 @@ webrtc git sha:
 9aeaa25d4c24e2dd09d5a3b7b460d558f21c3733
 
 build_script git sha:
-7be981bfd08101af6f3f5cf5fabb7023661b41e8
+2cf3d9005a013aa9f5a027d3e57112bf59471603
 
 rustc --version:
 rustc 1.44.1 (c7087fe00 2020-06-17)
