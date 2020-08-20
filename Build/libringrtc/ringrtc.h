@@ -537,6 +537,13 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReset(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcSetLowBandwidthMode(JNIEnv env,
+                                                                    JObject _object,
+                                                                    jlong call_manager,
+                                                                    bool enabled);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallManager_ringrtcSetVideoEnable(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
@@ -657,6 +664,22 @@ extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_jms_interfa
 
 extern const RffiCertificate *Rust_generateCertificate(void);
 
+extern int32_t Rust_getAudioPlayoutDeviceName(const RffiPeerConnectionFactoryInterface *factory,
+                                              uint16_t index,
+                                              char *out_name,
+                                              char *out_uuid);
+
+extern int16_t Rust_getAudioPlayoutDevices(const RffiPeerConnectionFactoryInterface *factory);
+
+extern int32_t Rust_getAudioRecordingDeviceName(const RffiPeerConnectionFactoryInterface *factory,
+                                                uint16_t index,
+                                                char *out_name,
+                                                char *out_uuid);
+
+extern int16_t Rust_getAudioRecordingDevices(const RffiPeerConnectionFactoryInterface *factory);
+
+extern const RffiVideoTrackInterface *Rust_getFirstVideoTrack(const RffiMediaStreamInterface *stream);
+
 extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConnectionFactoryInterface *factory);
 
 #if defined(TARGET_OS_ANDROID)
@@ -670,8 +693,6 @@ extern const RffiPeerConnectionInterface *Rust_getPeerConnectionInterface(int64_
 extern void Rust_getStats(const RffiPeerConnectionInterface *pc_interface,
                           const RffiStatsObserver *stats_observer);
 
-extern const RffiVideoTrackInterface *Rust_getVideoTrack(const RffiMediaStreamInterface *stream);
-
 extern const RffiSessionDescriptionInterface *Rust_offerFromSdp(const char *sdp);
 
 extern void Rust_pushVideoFrame(const RffiVideoTrackSourceInterface *source,
@@ -684,13 +705,25 @@ extern void Rust_releaseRef(CppObject ref_counted_pointer);
 
 extern bool Rust_replaceRtpDataChannelsWithSctp(const RffiSessionDescriptionInterface *sdi);
 
+extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactoryInterface *factory,
+                                       uint16_t index);
+
+extern bool Rust_setAudioRecordingDevice(const RffiPeerConnectionFactoryInterface *factory,
+                                         uint16_t index);
+
 extern void Rust_setAudioTrackEnabled(const RffiAudioTrackInterface *track, bool enabled);
+
+extern bool Rust_setIncomingRtpEnabled(const RffiPeerConnectionInterface *pc_interface,
+                                       bool enabled);
 
 extern void Rust_setLocalDescription(const RffiPeerConnectionInterface *pc_interface,
                                      const RffiSetSessionDescriptionObserver *ssd_observer,
                                      const RffiSessionDescriptionInterface *desc);
 
 extern void Rust_setLogger(CppObject cbs, LogSeverity min_severity);
+
+extern void Rust_setMaxSendBitrate(const RffiPeerConnectionInterface *pc_interface,
+                                   int32_t max_bitrate_bps);
 
 extern void Rust_setOutgoingAudioEnabled(const RffiPeerConnectionInterface *pc_interface,
                                          bool enabled);
@@ -802,6 +835,10 @@ void *ringrtcReceivedOffer(void *callManager,
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcReset(void *callManager);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcSetLowBandwidthMode(void *callManager, bool enabled);
 #endif
 
 #if defined(TARGET_OS_IOS)
