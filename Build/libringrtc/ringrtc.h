@@ -38,6 +38,12 @@ typedef enum {
 } LogSeverity;
 
 typedef enum {
+    Aes128CmSha1 = 1,
+    AeadAes128Gcm = 7,
+    AeadAes256Gcm = 8,
+} SrtpCryptoSuite;
+
+typedef enum {
     VideoRotation_None = 0,
     VideoRotation_Clockwise90 = 90,
     VideoRotation_Clockwise180 = 180,
@@ -484,7 +490,9 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                jint remote_device,
                                                                jbyteArray opaque,
                                                                JString sdp,
-                                                               jboolean remote_supports_multi_ring);
+                                                               jboolean remote_supports_multi_ring,
+                                                               jbyteArray sender_identity_key,
+                                                               jbyteArray receiver_identity_key);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -527,7 +535,9 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
                                                               jint call_media_type,
                                                               jint local_device,
                                                               jboolean remote_supports_multi_ring,
-                                                              jboolean jni_is_local_device_primary);
+                                                              jboolean jni_is_local_device_primary,
+                                                              jbyteArray sender_identity_key,
+                                                              jbyteArray receiver_identity_key);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -657,6 +667,13 @@ extern bool Rust_dataChannelSend(const RffiDataChannelInterface *dc_interface,
                                  const uint8_t *buffer,
                                  size_t len,
                                  bool binary);
+
+extern bool Rust_disableDtlsAndSetSrtpKey(const RffiSessionDescriptionInterface *sdi,
+                                          SrtpCryptoSuite crypto_suite,
+                                          const uint8_t *key_ptr,
+                                          size_t key_len,
+                                          const uint8_t *salt_ptr,
+                                          size_t salt_len);
 
 #if defined(TARGET_OS_ANDROID)
 extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_jms_interface);
@@ -797,7 +814,9 @@ void *ringrtcReceivedAnswer(void *callManager,
                             uint32_t senderDeviceId,
                             AppByteSlice opaque,
                             AppByteSlice sdp,
-                            bool senderSupportsMultiRing);
+                            bool senderSupportsMultiRing,
+                            AppByteSlice senderIdentityKey,
+                            AppByteSlice receiverIdentityKey);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -828,9 +847,11 @@ void *ringrtcReceivedOffer(void *callManager,
                            AppByteSlice sdp,
                            uint64_t messageAgeSec,
                            int32_t callMediaType,
-                           uint32_t recevierDeviceId,
+                           uint32_t receiverDeviceId,
                            bool senderSupportsMultiRing,
-                           bool receiverDeviceIsPrimary);
+                           bool receiverDeviceIsPrimary,
+                           AppByteSlice senderIdentityKey,
+                           AppByteSlice receiverIdentityKey);
 #endif
 
 #if defined(TARGET_OS_IOS)
