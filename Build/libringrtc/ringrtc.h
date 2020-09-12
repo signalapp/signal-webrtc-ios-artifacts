@@ -38,6 +38,12 @@ typedef enum {
 } LogSeverity;
 
 typedef enum {
+    Vp8 = 8,
+    H264ConstrainedHigh = 46,
+    H264ConstrainedBaseline = 40,
+} RffiVideoCodecType;
+
+typedef enum {
     Aes128CmSha1 = 1,
     AeadAes128Gcm = 7,
     AeadAes256Gcm = 8,
@@ -237,6 +243,18 @@ typedef struct {
 typedef struct {
     uint8_t _private[0];
 } RffiStatsObserver;
+
+typedef struct {
+    RffiVideoCodecType type;
+    uint32_t level;
+} RffiVideoCodec;
+
+typedef struct {
+    const char *ice_ufrag;
+    const char *ice_pwd;
+    const RffiVideoCodec *receive_video_codecs;
+    uintptr_t receive_video_codecs_size;
+} RffiConnectionParametersV4;
 
 #if defined(TARGET_OS_IOS)
 /**
@@ -720,7 +738,14 @@ extern void Rust_registerDataChannelObserver(const RffiDataChannelInterface *dc_
 
 extern void Rust_releaseRef(CppObject ref_counted_pointer);
 
+extern void Rust_releaseV4(RffiConnectionParametersV4 *sdi);
+
 extern bool Rust_replaceRtpDataChannelsWithSctp(const RffiSessionDescriptionInterface *sdi);
+
+extern const RffiSessionDescriptionInterface *Rust_sessionDescriptionFromV4(bool offer,
+                                                                            const RffiConnectionParametersV4 *v4);
+
+extern RffiConnectionParametersV4 *Rust_sessionDescriptionToV4(const RffiSessionDescriptionInterface *sdi);
 
 extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactoryInterface *factory,
                                        uint16_t index);
