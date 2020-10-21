@@ -69,7 +69,7 @@ typedef struct {
 } RffiInjectableNetwork;
 
 /**
- * Rust version of WebRTC RFFI Ip,
+ * Rust version of Web RFFI Ip,
  * which is like WebRTC IPAddress.
  */
 typedef struct {
@@ -92,18 +92,18 @@ typedef struct {
 typedef const void *CppObject;
 
 /**
- * Incomplete type for C++ PeerConnectionInterface.
+ * Incomplete type for C++ PeerConnection.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiPeerConnectionInterface;
+} RffiPeerConnection;
 
 /**
- * Incomplete type for C++ VideoTrackInterface.
+ * Incomplete type for C++ VideoTrack.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiVideoTrackInterface;
+} RffiVideoTrack;
 
 /**
  * Opaque pointer type for an object of Rust origin.
@@ -111,12 +111,12 @@ typedef struct {
 typedef const void *RustObject;
 
 /**
- * Incomplete type for SessionDescriptionInterface, used by
+ * Incomplete type for SessionDescription, used by
  * CreateSessionDescriptionObserver callbacks.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiSessionDescriptionInterface;
+} RffiSessionDescription;
 
 /**
  * Incomplete type for C++ webrtc::VideoFrameBuffer.
@@ -133,51 +133,18 @@ typedef struct {
 } RffiCreateSessionDescriptionObserver;
 
 /**
- * Incomplete type for C++ AudioTrackInterface.
+ * Incomplete type for C++ AudioTrack.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiAudioTrackInterface;
+} RffiAudioTrack;
 
 /**
- * Incomplete type for C++ PeerConnectionFactoryInterface.
+ * Incomplete type for C++ PeerConnectionFactory.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiPeerConnectionFactoryInterface;
-
-/**
- * Incomplete type for C++ DataChannelInterface.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiDataChannelInterface;
-
-/**
- * Rust friendly version of WebRTC DataChannelInit.
- *
- * The definition is taken from [WebRTC RTCDataChannelInit]
- * (https://www.w3.org/TR/webrtc/#idl-def-rtcdatachannelinit).
- *
- * See `struct DataChannelInit1 in
- * webrtc/src/api/data_channel_interface.h
- */
-typedef struct {
-    bool reliable;
-    bool ordered;
-    int maxRetransmitTime;
-    int maxRetransmits;
-    const char *protocol;
-    bool negotiated;
-    int id;
-} RffiDataChannelInit;
-
-/**
- * Incomplete type for C++ DataChannelObserver.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiDataChannelObserverInterface;
+} RffiPeerConnectionFactory;
 
 #if defined(TARGET_OS_ANDROID)
 /**
@@ -189,18 +156,18 @@ typedef struct {
 #endif
 
 /**
- * Incomplete type for WebRTC C++ MediaStreamInterface.
+ * Incomplete type for WebRTC C++ MediaStream.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiMediaStreamInterface;
+} RffiMediaStream;
 
 /**
  * Incomplete type for C++ PeerConnectionObserver.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiPeerConnectionObserverInterface;
+} RffiPeerConnectionObserver;
 
 /**
  * Incomplete type for C++ RTCCerficate.
@@ -217,13 +184,6 @@ typedef struct {
 } RffiIceServer;
 
 /**
- * Incomplete type for C++ VideoTrackSourceInterface.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiVideoTrackSourceInterface;
-
-/**
  * Incomplete type for C++ CreateSessionDescriptionObserverRffi
  */
 typedef struct {
@@ -235,7 +195,14 @@ typedef struct {
  */
 typedef struct {
     uint8_t _private[0];
-} RffiIceGathererInterface;
+} RffiIceGatherer;
+
+/**
+ * Incomplete type for C++ DataChannelInterface.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiDataChannel;
 
 /**
  * Incomplete type for C++ webrtc::rffi::StatsObserverRffi
@@ -243,6 +210,13 @@ typedef struct {
 typedef struct {
     uint8_t _private[0];
 } RffiStatsObserver;
+
+/**
+ * Incomplete type for C++ VideoSource.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiVideoSource;
 
 typedef struct {
     RffiVideoCodecType type;
@@ -612,13 +586,15 @@ extern void Rust_InjectableNetwork_RemoveInterface(const RffiInjectableNetwork *
 extern void Rust_InjectableNetwork_SetSender(const RffiInjectableNetwork *network,
                                              CppObject sender);
 
-extern bool Rust_addIceCandidate(const RffiPeerConnectionInterface *pc_interface, const char *sdp);
+extern bool Rust_addIceCandidateFromSdp(const RffiPeerConnection *peer_connection, const char *sdp);
 
 extern void Rust_addRef(CppObject ref_counted_pointer);
 
-extern void Rust_addVideoSink(const RffiVideoTrackInterface *track, RustObject obj, CppObject cb);
+extern void Rust_addVideoSink(const RffiVideoTrack *track, RustObject obj, CppObject cb);
 
-extern const RffiSessionDescriptionInterface *Rust_answerFromSdp(const char *sdp);
+extern RffiSessionDescription *Rust_answerFromSdp(const char *sdp);
+
+extern void Rust_closePeerConnection(const RffiPeerConnection *peer_connection);
 
 extern void Rust_convertVideoFrameBufferToRgba(const RffiVideoFrameBuffer *buffer,
                                                uint8_t *rgba_buffer);
@@ -626,47 +602,43 @@ extern void Rust_convertVideoFrameBufferToRgba(const RffiVideoFrameBuffer *buffe
 extern const RffiVideoFrameBuffer *Rust_copyAndRotateVideoFrameBuffer(const RffiVideoFrameBuffer *buffer,
                                                                       VideoRotation rotation);
 
-extern void Rust_createAnswer(const RffiPeerConnectionInterface *pc_interface,
+extern void Rust_createAnswer(const RffiPeerConnection *peer_connection,
                               const RffiCreateSessionDescriptionObserver *csd_observer);
 
-extern const RffiAudioTrackInterface *Rust_createAudioTrack(const RffiPeerConnectionFactoryInterface *factory);
+extern const RffiAudioTrack *Rust_createAudioTrack(const RffiPeerConnectionFactory *factory);
 
 extern const RffiCreateSessionDescriptionObserver *Rust_createCreateSessionDescriptionObserver(RustObject csd_observer,
                                                                                                const void *csd_observer_cb);
 
-extern const RffiDataChannelInterface *Rust_createDataChannel(const RffiPeerConnectionInterface *pc_interface,
-                                                              const char *label,
-                                                              const RffiDataChannelInit *config);
-
-extern const RffiDataChannelObserverInterface *Rust_createDataChannelObserver(RustObject call_connection,
-                                                                              CppObject dc_observer_cb);
-
 #if defined(TARGET_OS_ANDROID)
-extern const RffiJavaMediaStream *Rust_createJavaMediaStream(const RffiMediaStreamInterface *media_stream_interface);
+extern const RffiJavaMediaStream *Rust_createJavaMediaStream(const RffiMediaStream *rffi_media_stream);
 #endif
 
-extern void Rust_createOffer(const RffiPeerConnectionInterface *pc_interface,
+extern void Rust_createOffer(const RffiPeerConnection *peer_connection,
                              const RffiCreateSessionDescriptionObserver *csd_observer);
 
-extern const RffiPeerConnectionInterface *Rust_createPeerConnection(const RffiPeerConnectionFactoryInterface *factory,
-                                                                    const RffiPeerConnectionObserverInterface *observer,
-                                                                    const RffiCertificate *certificate,
-                                                                    bool hide_ip,
-                                                                    RffiIceServer ice_server,
-                                                                    const RffiAudioTrackInterface *outgoing_audio,
-                                                                    const RffiVideoTrackSourceInterface *outgoing_video,
-                                                                    bool enable_dtls,
-                                                                    bool enable_rtp_data_channel);
+extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnectionFactory *factory,
+                                                           const RffiPeerConnectionObserver *observer,
+                                                           const RffiCertificate *certificate,
+                                                           bool hide_ip,
+                                                           RffiIceServer ice_server,
+                                                           const RffiAudioTrack *outgoing_audio_track,
+                                                           const RffiVideoTrack *outgoing_video_track,
+                                                           bool enable_dtls,
+                                                           bool enable_rtp_data_channel);
 
-extern const RffiPeerConnectionFactoryInterface *Rust_createPeerConnectionFactory(bool use_injectable_network);
+extern const RffiPeerConnectionFactory *Rust_createPeerConnectionFactory(bool use_injectable_network);
 
-extern const RffiPeerConnectionObserverInterface *Rust_createPeerConnectionObserver(RustObject cc_ptr,
-                                                                                    CppObject pc_observer_cb);
+extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
+                                                                           CppObject pc_observer_cb);
 
 extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
                                                                                          const void *ssd_observer_cb);
 
-extern const RffiIceGathererInterface *Rust_createSharedIceGatherer(const RffiPeerConnectionInterface *pc_interface);
+extern const RffiIceGatherer *Rust_createSharedIceGatherer(const RffiPeerConnection *peer_connection);
+
+extern const RffiDataChannel *Rust_createSignalingDataChannel(const RffiPeerConnection *peer_connection,
+                                                              const RffiPeerConnectionObserver *pc_observer);
 
 extern const RffiStatsObserver *Rust_createStatsObserver(RustObject stats_observer,
                                                          const void *stats_observer_cbs);
@@ -675,18 +647,19 @@ extern const RffiVideoFrameBuffer *Rust_createVideoFrameBufferFromRgba(uint32_t 
                                                                        uint32_t height,
                                                                        const uint8_t *rgba_buffer);
 
-extern const RffiVideoTrackSourceInterface *Rust_createVideoSource(const RffiPeerConnectionFactoryInterface *factory);
+extern const RffiVideoSource *Rust_createVideoSource(const RffiPeerConnectionFactory *factory);
 
-extern const char *Rust_dataChannelGetLabel(const RffiDataChannelInterface *dc_interface);
+extern const RffiVideoTrack *Rust_createVideoTrack(const RffiPeerConnectionFactory *factory,
+                                                   const RffiVideoSource *source);
 
-extern bool Rust_dataChannelIsReliable(const RffiDataChannelInterface *dc_interface);
+extern bool Rust_dataChannelIsReliable(const RffiDataChannel *data_channel);
 
-extern bool Rust_dataChannelSend(const RffiDataChannelInterface *dc_interface,
+extern bool Rust_dataChannelSend(const RffiDataChannel *data_channel,
                                  const uint8_t *buffer,
                                  size_t len,
                                  bool binary);
 
-extern bool Rust_disableDtlsAndSetSrtpKey(const RffiSessionDescriptionInterface *sdi,
+extern bool Rust_disableDtlsAndSetSrtpKey(RffiSessionDescription *session_description,
                                           SrtpCryptoSuite crypto_suite,
                                           const uint8_t *key_ptr,
                                           size_t key_len,
@@ -694,93 +667,84 @@ extern bool Rust_disableDtlsAndSetSrtpKey(const RffiSessionDescriptionInterface 
                                           size_t salt_len);
 
 #if defined(TARGET_OS_ANDROID)
-extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_jms_interface);
+extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_java_media_stream);
 #endif
 
 extern const RffiCertificate *Rust_generateCertificate(void);
 
-extern int32_t Rust_getAudioPlayoutDeviceName(const RffiPeerConnectionFactoryInterface *factory,
+extern int32_t Rust_getAudioPlayoutDeviceName(const RffiPeerConnectionFactory *factory,
                                               uint16_t index,
                                               char *out_name,
                                               char *out_uuid);
 
-extern int16_t Rust_getAudioPlayoutDevices(const RffiPeerConnectionFactoryInterface *factory);
+extern int16_t Rust_getAudioPlayoutDevices(const RffiPeerConnectionFactory *factory);
 
-extern int32_t Rust_getAudioRecordingDeviceName(const RffiPeerConnectionFactoryInterface *factory,
+extern int32_t Rust_getAudioRecordingDeviceName(const RffiPeerConnectionFactory *factory,
                                                 uint16_t index,
                                                 char *out_name,
                                                 char *out_uuid);
 
-extern int16_t Rust_getAudioRecordingDevices(const RffiPeerConnectionFactoryInterface *factory);
+extern int16_t Rust_getAudioRecordingDevices(const RffiPeerConnectionFactory *factory);
 
-extern const RffiVideoTrackInterface *Rust_getFirstVideoTrack(const RffiMediaStreamInterface *stream);
+extern const RffiVideoTrack *Rust_getFirstVideoTrack(const RffiMediaStream *stream);
 
-extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConnectionFactoryInterface *factory);
+extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConnectionFactory *factory);
 
 #if defined(TARGET_OS_ANDROID)
-extern jobject Rust_getObjectJavaMediaStream(const RffiJavaMediaStream *rffi_jms_interface);
+extern jobject Rust_getJavaMediaStreamObject(const RffiJavaMediaStream *rffi_java_media_stream);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-extern const RffiPeerConnectionInterface *Rust_getPeerConnectionInterface(int64_t jni_owned_pc);
+extern const RffiPeerConnection *Rust_getPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
 #endif
 
-extern void Rust_getStats(const RffiPeerConnectionInterface *pc_interface,
+extern void Rust_getStats(const RffiPeerConnection *peer_connection,
                           const RffiStatsObserver *stats_observer);
 
-extern const RffiSessionDescriptionInterface *Rust_offerFromSdp(const char *sdp);
+extern RffiSessionDescription *Rust_offerFromSdp(const char *sdp);
 
-extern void Rust_pushVideoFrame(const RffiVideoTrackSourceInterface *source,
-                                const RffiVideoFrameBuffer *buffer);
-
-extern void Rust_registerDataChannelObserver(const RffiDataChannelInterface *dc_interface,
-                                             const RffiDataChannelObserverInterface *dc_observer);
+extern void Rust_pushVideoFrame(const RffiVideoSource *source, const RffiVideoFrameBuffer *buffer);
 
 extern void Rust_releaseRef(CppObject ref_counted_pointer);
 
-extern void Rust_releaseV4(RffiConnectionParametersV4 *sdi);
+extern void Rust_releaseSessionDescription(RffiSessionDescription *sdi);
 
-extern bool Rust_replaceRtpDataChannelsWithSctp(const RffiSessionDescriptionInterface *sdi);
+extern void Rust_releaseV4(RffiConnectionParametersV4 *session_description);
 
-extern const RffiSessionDescriptionInterface *Rust_sessionDescriptionFromV4(bool offer,
-                                                                            const RffiConnectionParametersV4 *v4);
+extern RffiSessionDescription *Rust_replaceRtpDataChannelsWithSctp(const RffiSessionDescription *session_description);
 
-extern RffiConnectionParametersV4 *Rust_sessionDescriptionToV4(const RffiSessionDescriptionInterface *sdi);
+extern RffiSessionDescription *Rust_sessionDescriptionFromV4(bool offer,
+                                                             const RffiConnectionParametersV4 *v4);
 
-extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactoryInterface *factory,
-                                       uint16_t index);
+extern RffiConnectionParametersV4 *Rust_sessionDescriptionToV4(const RffiSessionDescription *session_description);
 
-extern bool Rust_setAudioRecordingDevice(const RffiPeerConnectionFactoryInterface *factory,
-                                         uint16_t index);
+extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactory *factory, uint16_t index);
 
-extern void Rust_setAudioTrackEnabled(const RffiAudioTrackInterface *track, bool enabled);
+extern bool Rust_setAudioRecordingDevice(const RffiPeerConnectionFactory *factory, uint16_t index);
 
-extern bool Rust_setIncomingRtpEnabled(const RffiPeerConnectionInterface *pc_interface,
-                                       bool enabled);
+extern void Rust_setAudioTrackEnabled(const RffiAudioTrack *track, bool enabled);
 
-extern void Rust_setLocalDescription(const RffiPeerConnectionInterface *pc_interface,
+extern bool Rust_setIncomingMediaEnabled(const RffiPeerConnection *peer_connection, bool enabled);
+
+extern void Rust_setLocalDescription(const RffiPeerConnection *peer_connection,
                                      const RffiSetSessionDescriptionObserver *ssd_observer,
-                                     const RffiSessionDescriptionInterface *desc);
+                                     const RffiSessionDescription *local_description);
 
 extern void Rust_setLogger(CppObject cbs, LogSeverity min_severity);
 
-extern void Rust_setMaxSendBitrate(const RffiPeerConnectionInterface *pc_interface,
+extern void Rust_setMaxSendBitrate(const RffiPeerConnection *peer_connection,
                                    int32_t max_bitrate_bps);
 
-extern void Rust_setOutgoingAudioEnabled(const RffiPeerConnectionInterface *pc_interface,
-                                         bool enabled);
+extern void Rust_setOutgoingMediaEnabled(const RffiPeerConnection *peer_connection, bool enabled);
 
-extern void Rust_setRemoteDescription(const RffiPeerConnectionInterface *pc_interface,
+extern void Rust_setRemoteDescription(const RffiPeerConnection *peer_connection,
                                       const RffiSetSessionDescriptionObserver *ssd_observer,
-                                      const RffiSessionDescriptionInterface *desc);
+                                      const RffiSessionDescription *remote_description);
 
-extern const char *Rust_toSdp(const RffiSessionDescriptionInterface *offer);
+extern const char *Rust_toSdp(const RffiSessionDescription *offer);
 
-extern void Rust_unregisterDataChannelObserver(const RffiDataChannelInterface *dc_interface,
-                                               const RffiDataChannelObserverInterface *dc_observer);
-
-extern bool Rust_useSharedIceGatherer(const RffiPeerConnectionInterface *pc_interface,
-                                      const RffiIceGathererInterface *ice_gatherer);
+extern bool Rust_useSharedIceGatherer(const RffiPeerConnection *peer_connection,
+                                      const RffiIceGatherer *ice_gatherer);
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcAccept(void *callManager, uint64_t callId);
