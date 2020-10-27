@@ -474,7 +474,7 @@ typedef struct {
     /**
      *
      */
-    void (*handleIncomingVideoTrack)(void *object, ClientId clientId, DemuxId remoteDemuxId, void *videoTrack);
+    void (*handleIncomingVideoTrack)(void *object, ClientId clientId, DemuxId remoteDemuxId, void *nativeVideoTrack);
     /**
      *
      */

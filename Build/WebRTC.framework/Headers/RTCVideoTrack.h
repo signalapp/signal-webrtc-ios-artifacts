@@ -37,10 +37,6 @@ RTC_OBJC_EXPORT
  */
 - (void *)getNativeVideoTrack;
 
-/** Releases the underlying native WebRTC VideoTrack pointer.
- */
-- (void)releaseNativeVideoTrack:(void *)nativeVideoTrack;
-
 @end
 
 NS_ASSUME_NONNULL_END
