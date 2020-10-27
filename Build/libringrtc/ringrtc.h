@@ -739,7 +739,8 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcConnect(JNIEnv env,
 jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      JObject _object,
                                                                      jlong call_manager,
-                                                                     JString group_id_to_log);
+                                                                     JString group_id_to_log,
+                                                                     jlong native_video_track);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -1059,7 +1060,7 @@ void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 #if defined(TARGET_OS_IOS)
 ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       AppByteSlice groupIdtoLog,
-                                      const void *videoTrack);
+                                      const void *nativeVideoTrack);
 #endif
 
 #if defined(TARGET_OS_IOS)

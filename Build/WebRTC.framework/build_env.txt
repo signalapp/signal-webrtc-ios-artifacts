@@ -6,10 +6,10 @@ ringrtc version:
 2.7.4
 
 ringrtc git branch:
-jim/group-call-ios-video
+group-calling
 
 ringrtc git sha:
-90c7544c14ae144f717566163d3c4dcb974a3130
+b41a3515b0316faade1abcbe81874cf20b4cad23
 
 webrtc version:
 4183b
@@ -18,10 +18,10 @@ webrtc git branch:
 master
 
 webrtc git sha:
-6910287eed99f6a2be842aea0db6e3d588fe8045
+0afc2b5c3f6b790c8eac3250cdf56a80bf72d0cd
 
 build_script git sha:
-90c7544c14ae144f717566163d3c4dcb974a3130
+b41a3515b0316faade1abcbe81874cf20b4cad23
 
 rustc --version:
 rustc 1.44.1 (c7087fe00 2020-06-17)
