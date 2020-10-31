@@ -417,7 +417,7 @@ typedef struct {
     /**
      *
      */
-    void (*onSendCallMessage)(void *object, AppByteSlice recipientUuid, AppByteSlice message);
+    void (*sendCallMessage)(void *object, AppByteSlice recipientUuid, AppByteSlice message);
     /**
      *
      */
@@ -905,7 +905,8 @@ extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnect
 extern const RffiPeerConnectionFactory *Rust_createPeerConnectionFactory(bool use_injectable_network);
 
 extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
-                                                                           CppObject pc_observer_cb);
+                                                                           CppObject pc_observer_cb,
+                                                                           bool e2ee_enabled);
 
 extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
                                                                                          const void *ssd_observer_cb);
@@ -1059,7 +1060,7 @@ void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 
 #if defined(TARGET_OS_IOS)
 ClientId ringrtcCreateGroupCallClient(void *callManager,
-                                      AppByteSlice groupIdtoLog,
+                                      AppByteSlice groupId,
                                       const void *nativeVideoTrack);
 #endif
 

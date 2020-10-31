@@ -6,10 +6,10 @@ ringrtc version:
 2.7.4
 
 ringrtc git branch:
-group-calling
+jim/call-message-ios
 
 ringrtc git sha:
-1afd18dc142d7dd8e2bfffcde01b7eb40c88678a
+f171a90406b38292e28cf13acd7ed6c0eda14d11
 
 webrtc version:
 4183c
@@ -21,7 +21,7 @@ webrtc git sha:
 fb962d49345e73456a123d3c38ebf62ba6b71202
 
 build_script git sha:
-1afd18dc142d7dd8e2bfffcde01b7eb40c88678a
+f171a90406b38292e28cf13acd7ed6c0eda14d11
 
 rustc --version:
 rustc 1.44.1 (c7087fe00 2020-06-17)
