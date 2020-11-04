@@ -663,6 +663,17 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedBusy(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedCallMessage(JNIEnv env,
+                                                                    JObject _object,
+                                                                    jlong call_manager,
+                                                                    jbyteArray sender_uuid,
+                                                                    jint sender_device_id,
+                                                                    jint local_device_id,
+                                                                    jbyteArray message,
+                                                                    jlong message_age_sec);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHangup(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
@@ -739,7 +750,7 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcConnect(JNIEnv env,
 jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      JObject _object,
                                                                      jlong call_manager,
-                                                                     JString group_id_to_log,
+                                                                     jbyteArray group_id,
                                                                      jlong native_video_track);
 #endif
 

@@ -6,28 +6,28 @@ ringrtc version:
 2.7.4
 
 ringrtc git branch:
-jim/call-message-ios
+group-calling
 
 ringrtc git sha:
-f171a90406b38292e28cf13acd7ed6c0eda14d11
+5b72bd245354240c067f31fa5e05339200fab4b4
 
 webrtc version:
-4183c
+4183d
 
 webrtc git branch:
 master
 
 webrtc git sha:
-fb962d49345e73456a123d3c38ebf62ba6b71202
+909d3eff32a4289bf8deb9379e9a2f96a8ad1be9
 
 build_script git sha:
-f171a90406b38292e28cf13acd7ed6c0eda14d11
+5b72bd245354240c067f31fa5e05339200fab4b4
 
 rustc --version:
-rustc 1.44.1 (c7087fe00 2020-06-17)
+rustc 1.47.0 (18bf6b4f0 2020-10-07)
 
 cargo --version:
-cargo 1.44.1 (88ba85757 2020-06-11)
+cargo 1.47.0 (f3c7e066a 2020-08-28)
 
 xcodebuild -version:
 Xcode 12.1
