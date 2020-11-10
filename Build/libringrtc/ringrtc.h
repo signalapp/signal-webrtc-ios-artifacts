@@ -123,7 +123,7 @@ typedef struct {
 } RffiSessionDescription;
 
 /**
- * Incomplete type for C++ RTCCerficate.
+ * Incomplete type for C++ RTCCertificate.
  */
 typedef struct {
     uint8_t _private[0];
@@ -222,6 +222,8 @@ typedef struct {
     uint8_t _private[0];
 } RffiVideoSource;
 
+typedef uint8_t PayloadType;
+
 typedef struct {
     RffiVideoCodecType type;
     uint32_t level;
@@ -233,6 +235,12 @@ typedef struct {
     const RffiVideoCodec *receive_video_codecs;
     uintptr_t receive_video_codecs_size;
 } RffiConnectionParametersV4;
+
+typedef uint16_t SequenceNumber;
+
+typedef uint32_t Timestamp;
+
+typedef uint32_t Ssrc;
 
 #if defined(TARGET_OS_IOS)
 /**
@@ -459,14 +467,6 @@ typedef struct {
      *
      */
     void (*handleJoinStateChanged)(void *object, ClientId clientId, int32_t joinState);
-    /**
-     *
-     */
-    void (*handleAudioMuteStateChanged)(void *object, ClientId clientId, bool audioMuted);
-    /**
-     *
-     */
-    void (*handleVideoMuteStateChanged)(void *object, ClientId clientId, bool videoMuted);
     /**
      *
      */
@@ -751,6 +751,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      JObject _object,
                                                                      jlong call_manager,
                                                                      jbyteArray group_id,
+                                                                     jlong native_audio_track,
                                                                      jlong native_video_track);
 #endif
 
@@ -917,7 +918,7 @@ extern const RffiPeerConnectionFactory *Rust_createPeerConnectionFactory(bool us
 
 extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
                                                                            CppObject pc_observer_cb,
-                                                                           bool e2ee_enabled);
+                                                                           bool enable_frame_encryption);
 
 extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
                                                                                          const void *ssd_observer_cb);
@@ -999,6 +1000,8 @@ extern RffiSessionDescription *Rust_offerFromSdp(const char *sdp);
 
 extern void Rust_pushVideoFrame(const RffiVideoSource *source, const RffiVideoFrameBuffer *buffer);
 
+extern bool Rust_receiveRtp(const RffiPeerConnection *peer_connection, PayloadType pt);
+
 extern void Rust_releaseRef(CppObject ref_counted_pointer);
 
 extern void Rust_releaseSessionDescription(RffiSessionDescription *sdi);
@@ -1012,6 +1015,14 @@ extern RffiSessionDescription *Rust_remoteDescriptionForGroupCall(const char *ic
                                                                   size_t demux_ids_len);
 
 extern RffiSessionDescription *Rust_replaceRtpDataChannelsWithSctp(const RffiSessionDescription *session_description);
+
+extern bool Rust_sendRtp(const RffiPeerConnection *peer_connection,
+                         PayloadType pt,
+                         SequenceNumber seqnum,
+                         Timestamp timestamp,
+                         Ssrc ssrc,
+                         const uint8_t *payload_data,
+                         uintptr_t payload_size);
 
 extern RffiSessionDescription *Rust_sessionDescriptionFromV4(bool offer,
                                                              const RffiConnectionParametersV4 *v4);
@@ -1040,6 +1051,8 @@ extern void Rust_setOutgoingMediaEnabled(const RffiPeerConnection *peer_connecti
 extern void Rust_setRemoteDescription(const RffiPeerConnection *peer_connection,
                                       const RffiSetSessionDescriptionObserver *ssd_observer,
                                       const RffiSessionDescription *remote_description);
+
+extern void Rust_setVideoTrackEnabled(const RffiVideoTrack *track, bool enabled);
 
 extern const char *Rust_toSdp(const RffiSessionDescription *offer);
 
@@ -1072,6 +1085,7 @@ void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 #if defined(TARGET_OS_IOS)
 ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       AppByteSlice groupId,
+                                      const void *nativeAudioTrack,
                                       const void *nativeVideoTrack);
 #endif
 

@@ -6,22 +6,22 @@ ringrtc version:
 2.7.4
 
 ringrtc git branch:
-group-calling
+jim/fix-electron-call-id
 
 ringrtc git sha:
-14d192f78270983146f0b493781dcc94197e17c3
+c26c5113f30f573fb0ef6f60e46371b84925b0ce
 
 webrtc version:
-4183d
+4183f
 
 webrtc git branch:
 master
 
 webrtc git sha:
-909d3eff32a4289bf8deb9379e9a2f96a8ad1be9
+4f5c48567b2d733980592b11da0389e2c4bce2aa
 
 build_script git sha:
-14d192f78270983146f0b493781dcc94197e17c3
+c26c5113f30f573fb0ef6f60e46371b84925b0ce
 
 rustc --version:
 rustc 1.47.0 (18bf6b4f0 2020-10-07)
