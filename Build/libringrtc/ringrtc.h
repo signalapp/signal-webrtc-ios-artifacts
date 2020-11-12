@@ -359,6 +359,7 @@ typedef struct {
 typedef struct {
     DemuxId demuxId;
     AppByteSlice user_id;
+    bool mediaKeysReceived;
     AppOptionalBool audioMuted;
     AppOptionalBool videoMuted;
     AppOptionalUInt16 speakerIndex;
@@ -751,6 +752,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      JObject _object,
                                                                      jlong call_manager,
                                                                      jbyteArray group_id,
+                                                                     JString sfu_url,
                                                                      jlong native_audio_track,
                                                                      jlong native_video_track);
 #endif
@@ -781,6 +783,13 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcLeave(JNIEnv env,
                                                     JObject _object,
                                                     jlong call_manager,
                                                     jlong client_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcResendMediaKeys(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong client_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -1085,6 +1094,7 @@ void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 #if defined(TARGET_OS_IOS)
 ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       AppByteSlice groupId,
+                                      AppByteSlice sfuUrl,
                                       const void *nativeAudioTrack,
                                       const void *nativeVideoTrack);
 #endif
@@ -1201,6 +1211,10 @@ void *ringrtcReceivedOffer(void *callManager,
                            bool receiverDeviceIsPrimary,
                            AppByteSlice senderIdentityKey,
                            AppByteSlice receiverIdentityKey);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcResendMediaKeys(void *callManager, ClientId clientId);
 #endif
 
 #if defined(TARGET_OS_IOS)

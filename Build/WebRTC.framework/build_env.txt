@@ -3,13 +3,13 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-2.7.4
+2.8.1
 
 ringrtc git branch:
-jim/fix-electron-call-id
+staging/v2.8.0
 
 ringrtc git sha:
-c26c5113f30f573fb0ef6f60e46371b84925b0ce
+501142c3569e3d0102b830d457e062130b1a3a13
 
 webrtc version:
 4183f
@@ -21,7 +21,7 @@ webrtc git sha:
 4f5c48567b2d733980592b11da0389e2c4bce2aa
 
 build_script git sha:
-c26c5113f30f573fb0ef6f60e46371b84925b0ce
+501142c3569e3d0102b830d457e062130b1a3a13
 
 rustc --version:
 rustc 1.47.0 (18bf6b4f0 2020-10-07)
