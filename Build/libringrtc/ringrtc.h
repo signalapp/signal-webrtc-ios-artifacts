@@ -454,7 +454,7 @@ typedef struct {
     /**
      *
      */
-    void (*handlePeekResponse)(void *object, uint32_t requestId, AppUuidArray joinedMembers, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+    void (*handlePeekResponse)(void *object, uint32_t requestId, AppUuidArray joinedMembers, AppByteSlice creator, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
@@ -482,7 +482,7 @@ typedef struct {
     /**
      *
      */
-    void (*handlePeekChanged)(void *object, ClientId clientId, AppUuidArray joinedMembers, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+    void (*handlePeekChanged)(void *object, ClientId clientId, AppUuidArray joinedMembers, AppByteSlice creator, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
