@@ -323,6 +323,23 @@ typedef struct {
 } AppMediaStreamInterface;
 #endif
 
+#if defined(TARGET_OS_IOS)
+typedef struct {
+    const AppByteSlice *uuids;
+    size_t count;
+} AppUuidArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u32 values to/from Swift.
+ */
+typedef struct {
+    uint32_t value;
+    bool valid;
+} AppOptionalUInt32;
+#endif
+
 typedef uint32_t DemuxId;
 
 #if defined(TARGET_OS_IOS)
@@ -346,16 +363,6 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional f32 values to/from Swift.
- */
-typedef struct {
-    float value;
-    bool valid;
-} AppOptionalFloat;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct {
     DemuxId demuxId;
     AppByteSlice user_id;
@@ -363,7 +370,6 @@ typedef struct {
     AppOptionalBool audioMuted;
     AppOptionalBool videoMuted;
     AppOptionalUInt16 speakerIndex;
-    AppOptionalFloat videoAspectRatio;
     AppOptionalUInt16 audioLevel;
 } AppRemoteDeviceState;
 #endif
@@ -373,13 +379,6 @@ typedef struct {
     const AppRemoteDeviceState *states;
     size_t count;
 } AppRemoteDeviceStateArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-typedef struct {
-    const AppByteSlice *members;
-    size_t count;
-} AppMemberArray;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -455,6 +454,10 @@ typedef struct {
     /**
      *
      */
+    void (*handlePeekResponse)(void *object, uint32_t requestId, AppUuidArray joinedMembers, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+    /**
+     *
+     */
     void (*requestMembershipProof)(void *object, ClientId clientId);
     /**
      *
@@ -479,7 +482,7 @@ typedef struct {
     /**
      *
      */
-    void (*handleJoinedMembersChanged)(void *object, ClientId clientId, AppMemberArray joinedMembers);
+    void (*handlePeekChanged)(void *object, ClientId clientId, AppUuidArray joinedMembers, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
@@ -499,19 +502,6 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Structure for holding call context details on behalf of the application.
- */
-typedef struct {
-    void *object;
-    /**
-     * Swift object clean up method.
-     */
-    void (*destroy)(void *object);
-} AppCallContext;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct {
     AppByteSlice userId;
     AppByteSlice userIdCipherText;
@@ -523,6 +513,19 @@ typedef struct {
     const AppGroupMemberInfo *members;
     size_t count;
 } AppGroupMemberInfoArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for holding call context details on behalf of the application.
+ */
+typedef struct {
+    void *object;
+    /**
+     * Swift object clean up method.
+     */
+    void (*destroy)(void *object);
+} AppCallContext;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -632,6 +635,16 @@ void Java_org_signal_ringrtc_CallManager_ringrtcMessageSent(JNIEnv env,
                                                             JObject _object,
                                                             jlong call_manager,
                                                             jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcPeekGroupCall(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong request_id,
+                                                              JString sfu_url,
+                                                              jbyteArray membership_proof,
+                                                              JObject jni_group_members);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -1145,6 +1158,14 @@ void *ringrtcMessageSendFailure(void *callManager, uint64_t callId);
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcMessageSent(void *callManager, uint64_t callId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcPeekGroupCall(void *callManager,
+                          uint32_t requestId,
+                          AppByteSlice sfuUrl,
+                          AppByteSlice proof,
+                          const AppGroupMemberInfoArray *appGroupMemberInfoArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
