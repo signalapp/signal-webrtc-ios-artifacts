@@ -9,7 +9,7 @@ ringrtc git branch:
 staging/v2.8.0
 
 ringrtc git sha:
-aa94e68b52de4a31d79a8f93500b118415f8c6a4
+d06a6ddb3226d3d345b895a43010562fe35852ec
 
 webrtc version:
 4183f
@@ -18,10 +18,10 @@ webrtc git branch:
 master
 
 webrtc git sha:
-4f5c48567b2d733980592b11da0389e2c4bce2aa
+8bbc2691a72cc9b3cdcf8b3c6f97ade24627872f
 
 build_script git sha:
-aa94e68b52de4a31d79a8f93500b118415f8c6a4
+d06a6ddb3226d3d345b895a43010562fe35852ec
 
 rustc --version:
 rustc 1.47.0 (18bf6b4f0 2020-10-07)
