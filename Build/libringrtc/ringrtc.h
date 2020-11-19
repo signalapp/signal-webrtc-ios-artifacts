@@ -210,24 +210,14 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional u16 values to/from Swift.
- */
-typedef struct {
-    uint16_t value;
-    bool valid;
-} AppOptionalUInt16;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct {
     DemuxId demuxId;
     AppByteSlice user_id;
     bool mediaKeysReceived;
     AppOptionalBool audioMuted;
     AppOptionalBool videoMuted;
-    AppOptionalUInt16 speakerIndex;
-    AppOptionalUInt16 audioLevel;
+    uint64_t addedTime;
+    uint64_t speakerTime;
 } AppRemoteDeviceState;
 #endif
 
@@ -372,6 +362,16 @@ typedef struct {
     const AppGroupMemberInfo *members;
     size_t count;
 } AppGroupMemberInfoArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u16 values to/from Swift.
+ */
+typedef struct {
+    uint16_t value;
+    bool valid;
+} AppOptionalUInt16;
 #endif
 
 #if defined(TARGET_OS_IOS)
