@@ -323,6 +323,23 @@ typedef struct {
 } AppMediaStreamInterface;
 #endif
 
+#if defined(TARGET_OS_IOS)
+typedef struct {
+    const AppByteSlice *uuids;
+    size_t count;
+} AppUuidArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u32 values to/from Swift.
+ */
+typedef struct {
+    uint32_t value;
+    bool valid;
+} AppOptionalUInt32;
+#endif
+
 typedef uint32_t DemuxId;
 
 #if defined(TARGET_OS_IOS)
@@ -336,34 +353,14 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional u16 values to/from Swift.
- */
-typedef struct {
-    uint16_t value;
-    bool valid;
-} AppOptionalUInt16;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional f32 values to/from Swift.
- */
-typedef struct {
-    float value;
-    bool valid;
-} AppOptionalFloat;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct {
     DemuxId demuxId;
     AppByteSlice user_id;
+    bool mediaKeysReceived;
     AppOptionalBool audioMuted;
     AppOptionalBool videoMuted;
-    AppOptionalUInt16 speakerIndex;
-    AppOptionalFloat videoAspectRatio;
-    AppOptionalUInt16 audioLevel;
+    uint64_t addedTime;
+    uint64_t speakerTime;
 } AppRemoteDeviceState;
 #endif
 
@@ -372,13 +369,6 @@ typedef struct {
     const AppRemoteDeviceState *states;
     size_t count;
 } AppRemoteDeviceStateArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-typedef struct {
-    const AppByteSlice *members;
-    size_t count;
-} AppMemberArray;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -454,6 +444,10 @@ typedef struct {
     /**
      *
      */
+    void (*handlePeekResponse)(void *object, uint32_t requestId, AppUuidArray joinedMembers, AppByteSlice creator, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+    /**
+     *
+     */
     void (*requestMembershipProof)(void *object, ClientId clientId);
     /**
      *
@@ -478,7 +472,7 @@ typedef struct {
     /**
      *
      */
-    void (*handleJoinedMembersChanged)(void *object, ClientId clientId, AppMemberArray joinedMembers);
+    void (*handlePeekChanged)(void *object, ClientId clientId, AppUuidArray joinedMembers, AppByteSlice creator, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
@@ -498,19 +492,6 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Structure for holding call context details on behalf of the application.
- */
-typedef struct {
-    void *object;
-    /**
-     * Swift object clean up method.
-     */
-    void (*destroy)(void *object);
-} AppCallContext;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct {
     AppByteSlice userId;
     AppByteSlice userIdCipherText;
@@ -525,19 +506,42 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
+/**
+ * Structure for holding call context details on behalf of the application.
+ */
+typedef struct {
+    void *object;
+    /**
+     * Swift object clean up method.
+     */
+    void (*destroy)(void *object);
+} AppCallContext;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u16 values to/from Swift.
+ */
+typedef struct {
+    uint16_t value;
+    bool valid;
+} AppOptionalUInt16;
+#endif
+
+#if defined(TARGET_OS_IOS)
 typedef struct {
     DemuxId demux_id;
     uint16_t width;
     uint16_t height;
     AppOptionalUInt16 framerate;
-} AppRenderedResolution;
+} AppVideoRequest;
 #endif
 
 #if defined(TARGET_OS_IOS)
 typedef struct {
-    const AppRenderedResolution *resolutions;
+    const AppVideoRequest *resolutions;
     size_t count;
-} AppRenderedResolutionArray;
+} AppVideoRequestArray;
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -631,6 +635,16 @@ void Java_org_signal_ringrtc_CallManager_ringrtcMessageSent(JNIEnv env,
                                                             JObject _object,
                                                             jlong call_manager,
                                                             jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcPeekGroupCall(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong request_id,
+                                                              JString sfu_url,
+                                                              jbyteArray membership_proof,
+                                                              JObject jni_group_members);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -751,6 +765,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      JObject _object,
                                                                      jlong call_manager,
                                                                      jbyteArray group_id,
+                                                                     JString sfu_url,
                                                                      jlong native_audio_track,
                                                                      jlong native_video_track);
 #endif
@@ -781,6 +796,21 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcLeave(JNIEnv env,
                                                     JObject _object,
                                                     jlong call_manager,
                                                     jlong client_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcRequestVideo(JNIEnv env,
+                                                           JObject _object,
+                                                           jlong call_manager,
+                                                           ClientId client_id,
+                                                           JObject jni_rendered_resolutions);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcResendMediaKeys(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong client_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -821,14 +851,6 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcSetOutgoingVideoMuted(JNIEnv env,
                                                                     jlong call_manager,
                                                                     jlong client_id,
                                                                     bool muted);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcSetRenderedResolutions(JNIEnv env,
-                                                                     JObject _object,
-                                                                     jlong call_manager,
-                                                                     ClientId client_id,
-                                                                     JObject jni_rendered_resolutions);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -1085,6 +1107,7 @@ void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 #if defined(TARGET_OS_IOS)
 ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       AppByteSlice groupId,
+                                      AppByteSlice sfuUrl,
                                       const void *nativeAudioTrack,
                                       const void *nativeVideoTrack);
 #endif
@@ -1135,6 +1158,14 @@ void *ringrtcMessageSendFailure(void *callManager, uint64_t callId);
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcMessageSent(void *callManager, uint64_t callId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcPeekGroupCall(void *callManager,
+                          uint32_t requestId,
+                          AppByteSlice sfuUrl,
+                          AppByteSlice proof,
+                          const AppGroupMemberInfoArray *appGroupMemberInfoArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1204,6 +1235,16 @@ void *ringrtcReceivedOffer(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
+void ringrtcRequestVideo(void *callManager,
+                         ClientId clientId,
+                         const AppVideoRequestArray *appVideoRequestArray);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcResendMediaKeys(void *callManager, ClientId clientId);
+#endif
+
+#if defined(TARGET_OS_IOS)
 void *ringrtcReset(void *callManager);
 #endif
 
@@ -1231,12 +1272,6 @@ void ringrtcSetOutgoingAudioMuted(void *callManager, ClientId clientId, bool mut
 
 #if defined(TARGET_OS_IOS)
 void ringrtcSetOutgoingVideoMuted(void *callManager, ClientId clientId, bool muted);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcSetRenderedResolutions(void *callManager,
-                                   ClientId clientId,
-                                   const AppRenderedResolutionArray *appRenderedResolutionArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
