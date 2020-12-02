@@ -63,8 +63,6 @@ typedef enum {
  */
 typedef struct NetworkInterfaceType NetworkInterfaceType;
 
-typedef uint32_t ClientId;
-
 /**
  * Rust version of WebRTC RFFI InjectableNetwork
  */
@@ -241,6 +239,8 @@ typedef uint16_t SequenceNumber;
 typedef uint32_t Timestamp;
 
 typedef uint32_t Ssrc;
+
+typedef uint32_t ClientId;
 
 #if defined(TARGET_OS_IOS)
 /**
@@ -802,7 +802,7 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcLeave(JNIEnv env,
 void Java_org_signal_ringrtc_GroupCall_ringrtcRequestVideo(JNIEnv env,
                                                            JObject _object,
                                                            jlong call_manager,
-                                                           ClientId client_id,
+                                                           jlong client_id,
                                                            JObject jni_rendered_resolutions);
 #endif
 
