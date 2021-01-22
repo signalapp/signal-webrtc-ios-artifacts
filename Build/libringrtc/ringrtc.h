@@ -1,9 +1,7 @@
 /*
  *
- *  Copyright (C) 2019 Signal Messenger, LLC.
- *  All rights reserved.
- *
- *  SPDX-License-Identifier: GPL-3.0-only
+ * Copyright 2019-2021 Signal Messenger, LLC
+ * SPDX-License-Identifier: AGPL-3.0-only
  *
  */
 
@@ -19,7 +17,11 @@
 
 #define MAC_SIZE_BYTES 16
 
+#define MAXIMUM_BITRATE_BPS 2000001
+
 #define MAX_MESSAGE_AGE_SEC 120
+
+#define MINIMUM_BITRATE_BPS 30000
 
 /**
  * The stats period, how often to get and log them. Assumes tick period is 1 second.
@@ -126,6 +128,18 @@ typedef struct {
 typedef struct {
     uint8_t _private[0];
 } RffiCertificate;
+
+typedef struct {
+    uint32_t packet_size_ms;
+    int32_t bandwidth;
+    int32_t start_bitrate_bps;
+    int32_t min_bitrate_bps;
+    int32_t max_bitrate_bps;
+    int32_t complexity;
+    int32_t enable_vbr;
+    int32_t enable_dtx;
+    int32_t enable_fec;
+} RffiAudioEncoderConfig;
 
 /**
  * Incomplete type for C++ webrtc::VideoFrameBuffer.
@@ -254,20 +268,10 @@ typedef struct {
 
 #if defined(TARGET_OS_IOS)
 /**
- * Structure for passing Ice Candidates to/from Swift.
- */
-typedef struct {
-    AppByteSlice opaque;
-    AppByteSlice sdp;
-} AppIceCandidate;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
  * Structure for passing multiple Ice Candidates to/from Swift.
  */
 typedef struct {
-    const AppIceCandidate *candidates;
+    const AppByteSlice *candidates;
     size_t count;
 } AppIceCandidateArray;
 #endif
@@ -395,11 +399,11 @@ typedef struct {
     /**
      *
      */
-    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque, AppByteSlice sdp, int32_t callMediaType);
+    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque, int32_t callMediaType);
     /**
      *
      */
-    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque, AppByteSlice sdp);
+    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque);
     /**
      *
      */
@@ -644,7 +648,7 @@ void Java_org_signal_ringrtc_CallManager_ringrtcPeekGroupCall(JNIEnv env,
                                                               jlong request_id,
                                                               JString sfu_url,
                                                               jbyteArray membership_proof,
-                                                              JObject jni_group_members);
+                                                              jbyteArray jni_serialized_group_members);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -652,7 +656,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
                                                         JObject _object,
                                                         jlong call_manager,
                                                         jlong call_id,
-                                                        JObject jni_call_context);
+                                                        JObject jni_call_context,
+                                                        jint bandwidth_mode);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -662,7 +667,6 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                jlong call_id,
                                                                jint remote_device,
                                                                jbyteArray opaque,
-                                                               JString sdp,
                                                                jboolean remote_supports_multi_ring,
                                                                jbyteArray sender_identity_key,
                                                                jbyteArray receiver_identity_key);
@@ -723,7 +727,6 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
                                                               JObject jni_remote,
                                                               jint remote_device,
                                                               jbyteArray opaque,
-                                                              JString sdp,
                                                               jlong message_age_sec,
                                                               jint call_media_type,
                                                               jint local_device,
@@ -740,17 +743,17 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReset(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcSetLowBandwidthMode(JNIEnv env,
-                                                                    JObject _object,
-                                                                    jlong call_manager,
-                                                                    bool enabled);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallManager_ringrtcSetVideoEnable(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
                                                                jboolean enable);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcUpdateBandwidthMode(JNIEnv env,
+                                                                    JObject _object,
+                                                                    jlong call_manager,
+                                                                    jint bandwidth_mode);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -826,7 +829,7 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcSetGroupMembers(JNIEnv env,
                                                               JObject _object,
                                                               jlong call_manager,
                                                               jlong client_id,
-                                                              JObject jni_members);
+                                                              jbyteArray jni_serialized_group_members);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -905,6 +908,9 @@ extern void Rust_closePeerConnection(const RffiPeerConnection *peer_connection);
 extern bool Rust_computeCertificateFingerprintSha256(const RffiCertificate *cert,
                                                      uint8_t (*fingerprint)[32]);
 
+extern void Rust_configureAudioEncoders(const RffiPeerConnection *peer_connection,
+                                        const RffiAudioEncoderConfig *config);
+
 extern void Rust_convertVideoFrameBufferToRgba(const RffiVideoFrameBuffer *buffer,
                                                uint8_t *rgba_buffer);
 
@@ -961,8 +967,6 @@ extern const RffiVideoSource *Rust_createVideoSource(const RffiPeerConnectionFac
 
 extern const RffiVideoTrack *Rust_createVideoTrack(const RffiPeerConnectionFactory *factory,
                                                    const RffiVideoSource *source);
-
-extern bool Rust_dataChannelIsReliable(const RffiDataChannel *data_channel);
 
 extern bool Rust_dataChannelSend(const RffiDataChannel *data_channel,
                                  const uint8_t *buffer,
@@ -1035,8 +1039,6 @@ extern RffiSessionDescription *Rust_remoteDescriptionForGroupCall(const char *ic
                                                                   const uint8_t (*_dtls_fingerprint_sha256)[32],
                                                                   const uint32_t *demux_ids_data,
                                                                   size_t demux_ids_len);
-
-extern RffiSessionDescription *Rust_replaceRtpDataChannelsWithSctp(const RffiSessionDescription *session_description);
 
 extern bool Rust_sendRtp(const RffiPeerConnection *peer_connection,
                          PayloadType pt,
@@ -1169,7 +1171,10 @@ void ringrtcPeekGroupCall(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcProceed(void *callManager, uint64_t callId, AppCallContext appCallContext);
+void *ringrtcProceed(void *callManager,
+                     uint64_t callId,
+                     AppCallContext appCallContext,
+                     int32_t bandwidthMode);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1177,7 +1182,6 @@ void *ringrtcReceivedAnswer(void *callManager,
                             uint64_t callId,
                             uint32_t senderDeviceId,
                             AppByteSlice opaque,
-                            AppByteSlice sdp,
                             bool senderSupportsMultiRing,
                             AppByteSlice senderIdentityKey,
                             AppByteSlice receiverIdentityKey);
@@ -1224,7 +1228,6 @@ void *ringrtcReceivedOffer(void *callManager,
                            const void *remotePeer,
                            uint32_t senderDeviceId,
                            AppByteSlice opaque,
-                           AppByteSlice sdp,
                            uint64_t messageAgeSec,
                            int32_t callMediaType,
                            uint32_t receiverDeviceId,
@@ -1259,10 +1262,6 @@ void ringrtcSetGroupMembers(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcSetLowBandwidthMode(void *callManager, bool enabled);
-#endif
-
-#if defined(TARGET_OS_IOS)
 void ringrtcSetMembershipProof(void *callManager, ClientId clientId, AppByteSlice proof);
 #endif
 
@@ -1276,6 +1275,10 @@ void ringrtcSetOutgoingVideoMuted(void *callManager, ClientId clientId, bool mut
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcSetVideoEnable(void *callManager, bool enable);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcUpdateBandwidthMode(void *callManager, int32_t bandwidthMode);
 #endif
 
 #endif /* CBINDGEN_BINDINGS_H */
