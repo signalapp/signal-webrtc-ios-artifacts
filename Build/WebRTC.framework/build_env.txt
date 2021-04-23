@@ -3,31 +3,31 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-2.9.4
+2.9.5
 
 ringrtc git branch:
-(HEAD detached at v2.9.4)
+(HEAD detached at v2.9.5)
 
 ringrtc git sha:
-268cd1278c0cd575509f3f5506ceb3b5a501d9d8
+3ed43e3b81c406e4837537fbbe487f67eb64fb02
 
 webrtc version:
-4183l
+4389a
 
 webrtc git branch:
-(HEAD detached at 4183l)
+(HEAD detached at 4389a)
 
 webrtc git sha:
-ace82a77d2fcb3a2c56f0b7714ae46bedd7c6994
+bca2e1500ab87a7b425bbbe8b5d8378830f88a85
 
 build_script git sha:
-268cd1278c0cd575509f3f5506ceb3b5a501d9d8
+3ed43e3b81c406e4837537fbbe487f67eb64fb02
 
 rustc --version:
-rustc 1.49.0 (e1884a8e3 2020-12-29)
+rustc 1.51.0 (2fd73fabe 2021-03-23)
 
 cargo --version:
-cargo 1.49.0 (d00d64df9 2020-12-05)
+cargo 1.51.0 (43b129a20 2021-03-16)
 
 xcodebuild -version:
 Xcode 12.1

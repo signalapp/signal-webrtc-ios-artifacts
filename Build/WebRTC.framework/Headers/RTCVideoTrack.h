@@ -8,9 +8,9 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#import "RTCMediaStreamTrack.h"
+#import <WebRTC/RTCMediaStreamTrack.h>
 
-#import "RTCMacros.h"
+#import <WebRTC/RTCMacros.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +33,7 @@ RTC_OBJC_EXPORT
 /** Deregister a renderer. */
 - (void)removeRenderer:(id<RTC_OBJC_TYPE(RTCVideoRenderer)>)renderer;
 
+// RingRTC changes for low-level FFI
 /** Return the underlying native WebRTC video track pointer.
  */
 - (void *)getNativeVideoTrack;

@@ -492,7 +492,7 @@ typedef struct {
     void *object;
     void (*destroy)(void *object);
     void (*log)(void *object, AppByteSlice message, AppByteSlice file, AppByteSlice function, int32_t line, int8_t level);
-} IOSLogger;
+} IosLogger;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1143,7 +1143,7 @@ void ringrtcHttpRequestFailed(void *callManager, uint32_t requestId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcInitialize(IOSLogger logObject);
+void *ringrtcInitialize(IosLogger logObject);
 #endif
 
 #if defined(TARGET_OS_IOS)
