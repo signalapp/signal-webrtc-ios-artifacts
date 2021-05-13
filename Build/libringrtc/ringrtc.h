@@ -363,6 +363,8 @@ typedef struct {
     bool mediaKeysReceived;
     AppOptionalBool audioMuted;
     AppOptionalBool videoMuted;
+    AppOptionalBool presenting;
+    AppOptionalBool sharingScreen;
     uint64_t addedTime;
     uint64_t speakerTime;
 } AppRemoteDeviceState;
@@ -1075,6 +1077,8 @@ extern void Rust_setOutgoingMediaEnabled(const RffiPeerConnection *peer_connecti
 extern void Rust_setRemoteDescription(const RffiPeerConnection *peer_connection,
                                       const RffiSetSessionDescriptionObserver *ssd_observer,
                                       const RffiSessionDescription *remote_description);
+
+extern void Rust_setVideoTrackContentHint(const RffiVideoTrack *track, bool is_screenshare);
 
 extern void Rust_setVideoTrackEnabled(const RffiVideoTrack *track, bool enabled);
 

@@ -3,13 +3,13 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-2.9.6
+2.10.0
 
 ringrtc git branch:
-(HEAD detached at v2.9.6)
+(HEAD detached at v2.10.0)
 
 ringrtc git sha:
-f57af766197b402257e51dd112a28004e8ba0062
+aa6e92d7b5e24a11aaab4184fb16444c48179676
 
 webrtc version:
 4389b
@@ -21,7 +21,7 @@ webrtc git sha:
 440ac94b59993a39347919941dd425f05380a603
 
 build_script git sha:
-f57af766197b402257e51dd112a28004e8ba0062
+aa6e92d7b5e24a11aaab4184fb16444c48179676
 
 rustc --version:
 rustc 1.51.0 (2fd73fabe 2021-03-23)
@@ -30,15 +30,15 @@ cargo --version:
 cargo 1.51.0 (43b129a20 2021-03-16)
 
 xcodebuild -version:
-Xcode 12.1
-Build version 12A7403
+Xcode 12.4
+Build version 12D4e
 
 xcode-select -p:
 /Applications/Xcode.app/Contents/Developer
 
 gcc -v:
-Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
-Apple clang version 12.0.0 (clang-1200.0.32.21)
+Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
+Apple clang version 12.0.0 (clang-1200.0.32.29)
 Target: x86_64-apple-darwin19.5.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
