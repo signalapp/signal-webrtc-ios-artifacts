@@ -1069,14 +1069,16 @@ extern void Rust_setLocalDescription(const RffiPeerConnection *peer_connection,
 
 extern void Rust_setLogger(CppObject cbs, LogSeverity min_severity);
 
-extern void Rust_setMaxSendBitrate(const RffiPeerConnection *peer_connection,
-                                   int32_t max_bitrate_bps);
-
 extern void Rust_setOutgoingMediaEnabled(const RffiPeerConnection *peer_connection, bool enabled);
 
 extern void Rust_setRemoteDescription(const RffiPeerConnection *peer_connection,
                                       const RffiSetSessionDescriptionObserver *ssd_observer,
                                       const RffiSessionDescription *remote_description);
+
+extern void Rust_setSendBitrates(const RffiPeerConnection *peer_connection,
+                                 int32_t min_bitrate_bps,
+                                 int32_t start_bitrate_bps,
+                                 int32_t max_bitrate_bps);
 
 extern void Rust_setVideoTrackContentHint(const RffiVideoTrack *track, bool is_screenshare);
 
