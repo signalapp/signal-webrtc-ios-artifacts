@@ -19,8 +19,6 @@
 
 #define MAXIMUM_BITRATE_BPS 2000001
 
-#define MAX_MESSAGE_AGE_SEC 120
-
 #define MINIMUM_BITRATE_BPS 30000
 
 /**
@@ -254,8 +252,6 @@ typedef uint32_t Timestamp;
 
 typedef uint32_t Ssrc;
 
-typedef uint32_t ClientId;
-
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing buffers (strings/bytes) to/from Swift.
@@ -265,6 +261,8 @@ typedef struct {
     size_t len;
 } AppByteSlice;
 #endif
+
+typedef uint32_t ClientId;
 
 #if defined(TARGET_OS_IOS)
 /**
@@ -421,7 +419,11 @@ typedef struct {
     /**
      *
      */
-    void (*sendCallMessage)(void *object, AppByteSlice recipientUuid, AppByteSlice message);
+    void (*sendCallMessage)(void *object, AppByteSlice recipientUuid, AppByteSlice message, int32_t urgency);
+    /**
+     *
+     */
+    void (*sendCallMessageToGroup)(void *object, AppByteSlice groupId, AppByteSlice message, int32_t urgency);
     /**
      *
      */
@@ -447,6 +449,10 @@ typedef struct {
      *
      */
     void (*onCallConcluded)(void *object, const void *remote);
+    /**
+     *
+     */
+    void (*groupCallRingUpdate)(void *object, AppByteSlice groupId, int64_t ringId, AppByteSlice senderUuid, int32_t ringUpdate);
     /**
      *
      */
@@ -564,6 +570,15 @@ void Java_org_signal_ringrtc_CallManager_ringrtcCall(JNIEnv env,
                                                      JObject jni_remote,
                                                      jint call_media_type,
                                                      jint local_device);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcCancelGroupRing(JNIEnv env,
+                                                                JObject _object,
+                                                                jlong call_manager,
+                                                                jbyteArray group_id,
+                                                                jlong ring_id,
+                                                                jint reason);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -745,6 +760,13 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReset(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcSetSelfUuid(JNIEnv env,
+                                                            JObject _object,
+                                                            jlong call_manager,
+                                                            jbyteArray uuid);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallManager_ringrtcSetVideoEnable(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
@@ -816,6 +838,14 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcResendMediaKeys(JNIEnv env,
                                                               JObject _object,
                                                               jlong call_manager,
                                                               jlong client_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcRing(JNIEnv env,
+                                                   JObject _object,
+                                                   jlong call_manager,
+                                                   jlong client_id,
+                                                   jbyteArray recipient);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -1101,6 +1131,13 @@ void *ringrtcCall(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
+void *ringrtcCancelGroupRing(void *callManager,
+                             AppByteSlice groupId,
+                             int64_t ringId,
+                             int32_t reason);
+#endif
+
+#if defined(TARGET_OS_IOS)
 void *ringrtcClose(void *callManager);
 #endif
 
@@ -1138,6 +1175,10 @@ void *ringrtcGetActiveCallContext(void *callManager);
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcGetActiveConnection(void *callManager);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcGroupRing(void *callManager, ClientId clientId, AppByteSlice recipient);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1277,6 +1318,10 @@ void ringrtcSetOutgoingAudioMuted(void *callManager, ClientId clientId, bool mut
 
 #if defined(TARGET_OS_IOS)
 void ringrtcSetOutgoingVideoMuted(void *callManager, ClientId clientId, bool muted);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcSetSelfUuid(void *callManager, AppByteSlice uuid);
 #endif
 
 #if defined(TARGET_OS_IOS)
