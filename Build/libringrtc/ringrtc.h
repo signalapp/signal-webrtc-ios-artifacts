@@ -399,6 +399,10 @@ typedef struct {
     /**
      *
      */
+    void (*onNetworkRouteChanged)(void *object, const void *remote, int32_t localNetworkAdapterType);
+    /**
+     *
+     */
     void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque, int32_t callMediaType);
     /**
      *
@@ -469,6 +473,7 @@ typedef struct {
      *
      */
     void (*handleConnectionStateChanged)(void *object, ClientId clientId, int32_t connectionState);
+    void (*handleNetworkRouteChanged)(void *object, ClientId clientId, int32_t localNetworkAdapterType);
     /**
      *
      */
@@ -1071,6 +1076,10 @@ extern RffiSessionDescription *Rust_remoteDescriptionForGroupCall(const char *ic
                                                                   const uint8_t (*_dtls_fingerprint_sha256)[32],
                                                                   const uint32_t *demux_ids_data,
                                                                   size_t demux_ids_len);
+
+extern bool Rust_removeIceCandidates(const RffiPeerConnection *peer_connection,
+                                     const RffiIpPort *removed_addresses_data,
+                                     uintptr_t removed_addresses_len);
 
 extern bool Rust_sendRtp(const RffiPeerConnection *peer_connection,
                          PayloadType pt,
