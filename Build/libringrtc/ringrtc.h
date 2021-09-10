@@ -198,6 +198,13 @@ typedef struct {
 } RffiIceServer;
 
 /**
+ * Incomplete type for C++ PeerConnectionFactory.
+ */
+typedef struct {
+    uint8_t _private[0];
+} RffiAudioDeviceModule;
+
+/**
  * Incomplete type for C++ CreateSessionDescriptionObserverRffi
  */
 typedef struct {
@@ -365,6 +372,7 @@ typedef struct {
     AppOptionalBool sharingScreen;
     uint64_t addedTime;
     uint64_t speakerTime;
+    AppOptionalBool forwardingVideo;
 } AppRemoteDeviceState;
 #endif
 
@@ -940,6 +948,10 @@ extern void Rust_addVideoSink(const RffiVideoTrack *track, RustObject obj, CppOb
 
 extern RffiSessionDescription *Rust_answerFromSdp(const char *sdp);
 
+#if defined(TARGET_OS_ANDROID)
+extern const RffiPeerConnection *Rust_borrowPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
+#endif
+
 extern void Rust_closePeerConnection(const RffiPeerConnection *peer_connection);
 
 extern bool Rust_computeCertificateFingerprintSha256(const RffiCertificate *cert,
@@ -979,7 +991,9 @@ extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnect
                                                            bool enable_dtls,
                                                            bool enable_rtp_data_channel);
 
-extern const RffiPeerConnectionFactory *Rust_createPeerConnectionFactory(bool use_injectable_network);
+extern const RffiPeerConnectionFactory *Rust_createPeerConnectionFactory(const RffiAudioDeviceModule *adm,
+                                                                         bool use_new_audio_device_module,
+                                                                         bool use_injectable_network);
 
 extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
                                                                            CppObject pc_observer_cb,
@@ -1043,10 +1057,6 @@ extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConn
 
 #if defined(TARGET_OS_ANDROID)
 extern jobject Rust_getJavaMediaStreamObject(const RffiJavaMediaStream *rffi_java_media_stream);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-extern const RffiPeerConnection *Rust_getPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
 #endif
 
 extern void Rust_getStats(const RffiPeerConnection *peer_connection,
