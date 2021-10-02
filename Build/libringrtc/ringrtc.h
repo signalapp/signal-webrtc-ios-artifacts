@@ -161,11 +161,11 @@ typedef struct {
 } RffiAudioTrack;
 
 /**
- * Incomplete type for C++ PeerConnectionFactory.
+ * Incomplete type for C++ PeerConnectionFactoryOwner.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiPeerConnectionFactory;
+} RffiPeerConnectionFactoryOwner;
 
 #if defined(TARGET_OS_ANDROID)
 /**
@@ -198,11 +198,11 @@ typedef struct {
 } RffiIceServer;
 
 /**
- * Incomplete type for C++ PeerConnectionFactory.
+ * Incomplete type for C++ PeerConnectionFactoryInterface.
  */
 typedef struct {
     uint8_t _private[0];
-} RffiAudioDeviceModule;
+} RffiPeerConnectionFactoryInterface;
 
 /**
  * Incomplete type for C++ CreateSessionDescriptionObserverRffi
@@ -806,6 +806,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      jlong call_manager,
                                                                      jbyteArray group_id,
                                                                      JString sfu_url,
+                                                                     jlong native_peer_connection_factory,
                                                                      jlong native_audio_track,
                                                                      jlong native_video_track);
 #endif
@@ -969,7 +970,7 @@ extern const RffiVideoFrameBuffer *Rust_copyAndRotateVideoFrameBuffer(const Rffi
 extern void Rust_createAnswer(const RffiPeerConnection *peer_connection,
                               const RffiCreateSessionDescriptionObserver *csd_observer);
 
-extern const RffiAudioTrack *Rust_createAudioTrack(const RffiPeerConnectionFactory *factory);
+extern const RffiAudioTrack *Rust_createAudioTrack(const RffiPeerConnectionFactoryOwner *factory);
 
 extern const RffiCreateSessionDescriptionObserver *Rust_createCreateSessionDescriptionObserver(RustObject csd_observer,
                                                                                                const void *csd_observer_cb);
@@ -981,7 +982,7 @@ extern const RffiJavaMediaStream *Rust_createJavaMediaStream(const RffiMediaStre
 extern void Rust_createOffer(const RffiPeerConnection *peer_connection,
                              const RffiCreateSessionDescriptionObserver *csd_observer);
 
-extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnectionFactory *factory,
+extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnectionFactoryOwner *factory,
                                                            const RffiPeerConnectionObserver *observer,
                                                            const RffiCertificate *certificate,
                                                            bool hide_ip,
@@ -991,9 +992,10 @@ extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnect
                                                            bool enable_dtls,
                                                            bool enable_rtp_data_channel);
 
-extern const RffiPeerConnectionFactory *Rust_createPeerConnectionFactory(const RffiAudioDeviceModule *adm,
-                                                                         bool use_new_audio_device_module,
-                                                                         bool use_injectable_network);
+extern const RffiPeerConnectionFactoryOwner *Rust_createPeerConnectionFactory(bool use_new_audio_device_module,
+                                                                              bool use_injectable_network);
+
+extern const RffiPeerConnectionFactoryOwner *Rust_createPeerConnectionFactoryWrapper(const RffiPeerConnectionFactoryInterface *factory);
 
 extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
                                                                            CppObject pc_observer_cb,
@@ -1014,9 +1016,9 @@ extern const RffiVideoFrameBuffer *Rust_createVideoFrameBufferFromRgba(uint32_t 
                                                                        uint32_t height,
                                                                        const uint8_t *rgba_buffer);
 
-extern const RffiVideoSource *Rust_createVideoSource(const RffiPeerConnectionFactory *factory);
+extern const RffiVideoSource *Rust_createVideoSource(const RffiPeerConnectionFactoryOwner *factory);
 
-extern const RffiVideoTrack *Rust_createVideoTrack(const RffiPeerConnectionFactory *factory,
+extern const RffiVideoTrack *Rust_createVideoTrack(const RffiPeerConnectionFactoryOwner *factory,
                                                    const RffiVideoSource *source);
 
 extern bool Rust_dataChannelSend(const RffiDataChannel *data_channel,
@@ -1037,23 +1039,23 @@ extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_java_media_
 
 extern const RffiCertificate *Rust_generateCertificate(void);
 
-extern int32_t Rust_getAudioPlayoutDeviceName(const RffiPeerConnectionFactory *factory,
+extern int32_t Rust_getAudioPlayoutDeviceName(const RffiPeerConnectionFactoryOwner *factory,
                                               uint16_t index,
                                               char *out_name,
                                               char *out_uuid);
 
-extern int16_t Rust_getAudioPlayoutDevices(const RffiPeerConnectionFactory *factory);
+extern int16_t Rust_getAudioPlayoutDevices(const RffiPeerConnectionFactoryOwner *factory);
 
-extern int32_t Rust_getAudioRecordingDeviceName(const RffiPeerConnectionFactory *factory,
+extern int32_t Rust_getAudioRecordingDeviceName(const RffiPeerConnectionFactoryOwner *factory,
                                                 uint16_t index,
                                                 char *out_name,
                                                 char *out_uuid);
 
-extern int16_t Rust_getAudioRecordingDevices(const RffiPeerConnectionFactory *factory);
+extern int16_t Rust_getAudioRecordingDevices(const RffiPeerConnectionFactoryOwner *factory);
 
 extern const RffiVideoTrack *Rust_getFirstVideoTrack(const RffiMediaStream *stream);
 
-extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConnectionFactory *factory);
+extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConnectionFactoryOwner *factory);
 
 #if defined(TARGET_OS_ANDROID)
 extern jobject Rust_getJavaMediaStreamObject(const RffiJavaMediaStream *rffi_java_media_stream);
@@ -1104,9 +1106,13 @@ extern RffiSessionDescription *Rust_sessionDescriptionFromV4(bool offer,
 
 extern RffiConnectionParametersV4 *Rust_sessionDescriptionToV4(const RffiSessionDescription *session_description);
 
-extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactory *factory, uint16_t index);
+extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactoryOwner *factory,
+                                       uint16_t index);
 
-extern bool Rust_setAudioRecordingDevice(const RffiPeerConnectionFactory *factory, uint16_t index);
+extern void Rust_setAudioPlayoutEnabled(const RffiPeerConnection *peer_connection, bool enabled);
+
+extern bool Rust_setAudioRecordingDevice(const RffiPeerConnectionFactoryOwner *factory,
+                                         uint16_t index);
 
 extern void Rust_setAudioTrackEnabled(const RffiAudioTrack *track, bool enabled);
 
@@ -1172,8 +1178,9 @@ void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
 ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       AppByteSlice groupId,
                                       AppByteSlice sfuUrl,
-                                      const void *nativeAudioTrack,
-                                      const void *nativeVideoTrack);
+                                      const void *nativeOwnedPeerConnectionFactory,
+                                      const void *nativeOwnedAudioTrack,
+                                      const void *nativeOwnedVideoTrack);
 #endif
 
 #if defined(TARGET_OS_IOS)
