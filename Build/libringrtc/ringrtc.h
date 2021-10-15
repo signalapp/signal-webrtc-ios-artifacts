@@ -120,6 +120,8 @@ typedef struct {
     uint8_t _private[0];
 } RffiSessionDescription;
 
+typedef const RffiPeerConnection *BorrowedRc_RffiPeerConnection;
+
 /**
  * Incomplete type for C++ RTCCertificate.
  */
@@ -160,12 +162,16 @@ typedef struct {
     uint8_t _private[0];
 } RffiAudioTrack;
 
+typedef const RffiAudioTrack *OwnedRc_RffiAudioTrack;
+
 /**
  * Incomplete type for C++ PeerConnectionFactoryOwner.
  */
 typedef struct {
     uint8_t _private[0];
 } RffiPeerConnectionFactoryOwner;
+
+typedef const RffiPeerConnectionFactoryOwner *BorrowedRc_RffiPeerConnectionFactoryOwner;
 
 #if defined(TARGET_OS_ANDROID)
 /**
@@ -183,6 +189,8 @@ typedef struct {
     uint8_t _private[0];
 } RffiMediaStream;
 
+typedef const RffiPeerConnection *OwnedRc_RffiPeerConnection;
+
 /**
  * Incomplete type for C++ PeerConnectionObserver.
  */
@@ -197,12 +205,16 @@ typedef struct {
     uintptr_t urls_size;
 } RffiIceServer;
 
+typedef const RffiPeerConnectionFactoryOwner *OwnedRc_RffiPeerConnectionFactoryOwner;
+
 /**
  * Incomplete type for C++ PeerConnectionFactoryInterface.
  */
 typedef struct {
     uint8_t _private[0];
 } RffiPeerConnectionFactoryInterface;
+
+typedef const RffiPeerConnectionFactoryInterface *BorrowedRc_RffiPeerConnectionFactoryInterface;
 
 /**
  * Incomplete type for C++ CreateSessionDescriptionObserverRffi
@@ -806,7 +818,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      jlong call_manager,
                                                                      jbyteArray group_id,
                                                                      JString sfu_url,
-                                                                     jlong native_peer_connection_factory,
+                                                                     jlong native_peer_connection_factory_borrowed_rc,
                                                                      jlong native_audio_track,
                                                                      jlong native_video_track);
 #endif
@@ -950,7 +962,7 @@ extern void Rust_addVideoSink(const RffiVideoTrack *track, RustObject obj, CppOb
 extern RffiSessionDescription *Rust_answerFromSdp(const char *sdp);
 
 #if defined(TARGET_OS_ANDROID)
-extern const RffiPeerConnection *Rust_borrowPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
+extern BorrowedRc_RffiPeerConnection Rust_borrowPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
 #endif
 
 extern void Rust_closePeerConnection(const RffiPeerConnection *peer_connection);
@@ -970,7 +982,7 @@ extern const RffiVideoFrameBuffer *Rust_copyAndRotateVideoFrameBuffer(const Rffi
 extern void Rust_createAnswer(const RffiPeerConnection *peer_connection,
                               const RffiCreateSessionDescriptionObserver *csd_observer);
 
-extern const RffiAudioTrack *Rust_createAudioTrack(const RffiPeerConnectionFactoryOwner *factory);
+extern OwnedRc_RffiAudioTrack Rust_createAudioTrack(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
 
 extern const RffiCreateSessionDescriptionObserver *Rust_createCreateSessionDescriptionObserver(RustObject csd_observer,
                                                                                                const void *csd_observer_cb);
@@ -982,20 +994,20 @@ extern const RffiJavaMediaStream *Rust_createJavaMediaStream(const RffiMediaStre
 extern void Rust_createOffer(const RffiPeerConnection *peer_connection,
                              const RffiCreateSessionDescriptionObserver *csd_observer);
 
-extern const RffiPeerConnection *Rust_createPeerConnection(const RffiPeerConnectionFactoryOwner *factory,
-                                                           const RffiPeerConnectionObserver *observer,
-                                                           const RffiCertificate *certificate,
-                                                           bool hide_ip,
-                                                           RffiIceServer ice_server,
-                                                           const RffiAudioTrack *outgoing_audio_track,
-                                                           const RffiVideoTrack *outgoing_video_track,
-                                                           bool enable_dtls,
-                                                           bool enable_rtp_data_channel);
+extern OwnedRc_RffiPeerConnection Rust_createPeerConnection(const RffiPeerConnectionFactoryOwner *factory,
+                                                            const RffiPeerConnectionObserver *observer,
+                                                            const RffiCertificate *certificate,
+                                                            bool hide_ip,
+                                                            RffiIceServer ice_server,
+                                                            const RffiAudioTrack *outgoing_audio_track,
+                                                            const RffiVideoTrack *outgoing_video_track,
+                                                            bool enable_dtls,
+                                                            bool enable_rtp_data_channel);
 
-extern const RffiPeerConnectionFactoryOwner *Rust_createPeerConnectionFactory(bool use_new_audio_device_module,
-                                                                              bool use_injectable_network);
+extern OwnedRc_RffiPeerConnectionFactoryOwner Rust_createPeerConnectionFactory(bool use_new_audio_device_module,
+                                                                               bool use_injectable_network);
 
-extern const RffiPeerConnectionFactoryOwner *Rust_createPeerConnectionFactoryWrapper(const RffiPeerConnectionFactoryInterface *factory);
+extern OwnedRc_RffiPeerConnectionFactoryOwner Rust_createPeerConnectionFactoryWrapper(BorrowedRc_RffiPeerConnectionFactoryInterface factory);
 
 extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
                                                                            CppObject pc_observer_cb,
