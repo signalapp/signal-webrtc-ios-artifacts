@@ -15,23 +15,23 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define MAC_SIZE_BYTES 16
+#define MINIMUM_BITRATE_BPS 30000
 
 #define MAXIMUM_BITRATE_BPS 2000001
 
-#define MINIMUM_BITRATE_BPS 30000
+/**
+ * The periodic tick interval. Used to generate stats and to retransmit RTP messages.
+ */
+#define TICK_PERIOD_SEC 1
 
 /**
  * The stats period, how often to get and log them. Assumes tick period is 1 second.
  */
 #define STATS_PERIOD_SEC 10
 
-/**
- * The periodic tick interval. Used to generate stats and to retransmit data channel messages.
- */
-#define TICK_PERIOD_SEC 1
+#define MAC_SIZE_BYTES 16
 
-typedef enum {
+typedef enum LogSeverity {
     Verbose,
     Info,
     Warn,
@@ -39,256 +39,96 @@ typedef enum {
     None,
 } LogSeverity;
 
-typedef enum {
+/**
+ * Rust version of WebRTC AdapterType
+ */
+typedef enum NetworkInterfaceType {
+    Unknown = 0,
+    Ethernet = 1,
+    Wifi = (1 << 1),
+    Cellular = (1 << 2),
+    Vpn = (1 << 3),
+    Loopback = (1 << 4),
+    Any = (1 << 5),
+} NetworkInterfaceType;
+
+typedef enum RffiVideoCodecType {
     Vp8 = 8,
     H264ConstrainedHigh = 46,
     H264ConstrainedBaseline = 40,
 } RffiVideoCodecType;
 
-typedef enum {
+typedef enum SrtpCryptoSuite {
     Aes128CmSha1 = 1,
     AeadAes128Gcm = 7,
     AeadAes256Gcm = 8,
 } SrtpCryptoSuite;
 
-typedef enum {
+typedef enum VideoRotation {
     VideoRotation_None = 0,
     VideoRotation_Clockwise90 = 90,
     VideoRotation_Clockwise180 = 180,
     VideoRotation_Clockwise270 = 270,
 } VideoRotation;
 
-/**
- * Rust version of WebRTC AdapterType
- */
-typedef struct NetworkInterfaceType NetworkInterfaceType;
-
-/**
- * Rust version of WebRTC RFFI InjectableNetwork
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiInjectableNetwork;
-
-/**
- * Rust version of Web RFFI Ip,
- * which is like WebRTC IPAddress.
- */
-typedef struct {
-    bool v6;
-    uint8_t address[16];
-} RffiIp;
-
-/**
- * Rust version of WebRTC RFFI IpPort,
- * which is like WebRTC SocketAddress
- */
-typedef struct {
-    RffiIp ip;
-    uint16_t port;
-} RffiIpPort;
-
-/**
- * Opaque pointer type for an object of C++ origin.
- */
-typedef const void *CppObject;
-
-/**
- * Incomplete type for C++ PeerConnection.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiPeerConnection;
-
-/**
- * Incomplete type for C++ VideoTrack.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiVideoTrack;
-
-/**
- * Opaque pointer type for an object of Rust origin.
- */
-typedef const void *RustObject;
-
-/**
- * Incomplete type for SessionDescription, used by
- * CreateSessionDescriptionObserver callbacks.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiSessionDescription;
-
-typedef const RffiPeerConnection *BorrowedRc_RffiPeerConnection;
-
-/**
- * Incomplete type for C++ RTCCertificate.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiCertificate;
-
-typedef struct {
-    uint32_t packet_size_ms;
-    int32_t bandwidth;
-    int32_t start_bitrate_bps;
-    int32_t min_bitrate_bps;
-    int32_t max_bitrate_bps;
-    int32_t complexity;
-    int32_t enable_vbr;
-    int32_t enable_dtx;
-    int32_t enable_fec;
-} RffiAudioEncoderConfig;
-
-/**
- * Incomplete type for C++ webrtc::VideoFrameBuffer.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiVideoFrameBuffer;
-
-/**
- * Incomplete type for C++ webrtc::rffi::CreateSessionDescriptionObserverRffi
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiCreateSessionDescriptionObserver;
-
-/**
- * Incomplete type for C++ AudioTrack.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiAudioTrack;
-
-typedef const RffiAudioTrack *OwnedRc_RffiAudioTrack;
-
-/**
- * Incomplete type for C++ PeerConnectionFactoryOwner.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiPeerConnectionFactoryOwner;
-
-typedef const RffiPeerConnectionFactoryOwner *BorrowedRc_RffiPeerConnectionFactoryOwner;
-
 #if defined(TARGET_OS_ANDROID)
 /**
  * Incomplete type for C++ JavaMediaStream.
  */
-typedef struct {
+typedef struct RffiJavaMediaStream {
     uint8_t _private[0];
 } RffiJavaMediaStream;
 #endif
 
+typedef const struct RffiJavaMediaStream *Owned_RffiJavaMediaStream;
+
 /**
  * Incomplete type for WebRTC C++ MediaStream.
  */
-typedef struct {
+typedef struct RffiMediaStream {
     uint8_t _private[0];
 } RffiMediaStream;
 
-typedef const RffiPeerConnection *OwnedRc_RffiPeerConnection;
+typedef const struct RffiMediaStream *OwnedRc_RffiMediaStream;
+
+typedef const struct RffiJavaMediaStream *Borrowed_RffiJavaMediaStream;
 
 /**
- * Incomplete type for C++ PeerConnectionObserver.
+ * Incomplete type for C++ PeerConnection.
  */
-typedef struct {
+typedef struct RffiPeerConnection {
     uint8_t _private[0];
-} RffiPeerConnectionObserver;
+} RffiPeerConnection;
 
-typedef struct {
-    const char *username;
-    const char *password;
-    const char *const *urls;
-    uintptr_t urls_size;
-} RffiIceServer;
-
-typedef const RffiPeerConnectionFactoryOwner *OwnedRc_RffiPeerConnectionFactoryOwner;
-
-/**
- * Incomplete type for C++ PeerConnectionFactoryInterface.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiPeerConnectionFactoryInterface;
-
-typedef const RffiPeerConnectionFactoryInterface *BorrowedRc_RffiPeerConnectionFactoryInterface;
-
-/**
- * Incomplete type for C++ CreateSessionDescriptionObserverRffi
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiSetSessionDescriptionObserver;
-
-/**
- * Incomplete type for C++ IceGathererInterface.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiIceGatherer;
-
-/**
- * Incomplete type for C++ DataChannelInterface.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiDataChannel;
-
-/**
- * Incomplete type for C++ webrtc::rffi::StatsObserverRffi
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiStatsObserver;
-
-/**
- * Incomplete type for C++ VideoSource.
- */
-typedef struct {
-    uint8_t _private[0];
-} RffiVideoSource;
-
-typedef uint8_t PayloadType;
-
-typedef struct {
-    RffiVideoCodecType type;
-    uint32_t level;
-} RffiVideoCodec;
-
-typedef struct {
-    const char *ice_ufrag;
-    const char *ice_pwd;
-    const RffiVideoCodec *receive_video_codecs;
-    uintptr_t receive_video_codecs_size;
-} RffiConnectionParametersV4;
-
-typedef uint16_t SequenceNumber;
-
-typedef uint32_t Timestamp;
-
-typedef uint32_t Ssrc;
+typedef const struct RffiPeerConnection *BorrowedRc_RffiPeerConnection;
 
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing buffers (strings/bytes) to/from Swift.
  */
-typedef struct {
+typedef struct AppByteSlice {
     const uint8_t *bytes;
     size_t len;
 } AppByteSlice;
 #endif
 
-typedef uint32_t ClientId;
+#if defined(TARGET_OS_IOS)
+/**
+ * Log object for interfacing with swift.
+ */
+typedef struct IosLogger {
+    void *object;
+    void (*destroy)(void *object);
+    void (*log)(void *object, struct AppByteSlice message, struct AppByteSlice file, struct AppByteSlice function, int32_t line, int8_t level);
+} IosLogger;
+#endif
 
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing multiple Ice Candidates to/from Swift.
  */
-typedef struct {
-    const AppByteSlice *candidates;
+typedef struct AppIceCandidateArray {
+    const struct AppByteSlice *candidates;
     size_t count;
 } AppIceCandidateArray;
 #endif
@@ -297,9 +137,9 @@ typedef struct {
 /**
  * Structure for passing name/value strings to/from Swift.
  */
-typedef struct {
-    AppByteSlice name;
-    AppByteSlice value;
+typedef struct AppHeader {
+    struct AppByteSlice name;
+    struct AppByteSlice value;
 } AppHeader;
 #endif
 
@@ -307,8 +147,8 @@ typedef struct {
 /**
  * Structure for passing multiple name/value headers to/from Swift.
  */
-typedef struct {
-    const AppHeader *headers;
+typedef struct AppHeaderArray {
+    const struct AppHeader *headers;
     size_t count;
 } AppHeaderArray;
 #endif
@@ -317,7 +157,7 @@ typedef struct {
 /**
  * Structure for passing connection details from the application.
  */
-typedef struct {
+typedef struct AppConnectionInterface {
     void *object;
     void *pc;
     /**
@@ -331,7 +171,7 @@ typedef struct {
 /**
  * Structure for passing media stream instances from the application.
  */
-typedef struct {
+typedef struct AppMediaStreamInterface {
     void *object;
     /**
      * Swift object clean up method.
@@ -345,8 +185,8 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
-typedef struct {
-    const AppByteSlice *uuids;
+typedef struct AppUuidArray {
+    const struct AppByteSlice *uuids;
     size_t count;
 } AppUuidArray;
 #endif
@@ -355,11 +195,13 @@ typedef struct {
 /**
  * Structure for passing optional u32 values to/from Swift.
  */
-typedef struct {
+typedef struct AppOptionalUInt32 {
     uint32_t value;
     bool valid;
 } AppOptionalUInt32;
 #endif
+
+typedef uint32_t ClientId;
 
 typedef uint32_t DemuxId;
 
@@ -367,30 +209,30 @@ typedef uint32_t DemuxId;
 /**
  * Structure for passing optional bool values to/from Swift.
  */
-typedef struct {
+typedef struct AppOptionalBool {
     bool value;
     bool valid;
 } AppOptionalBool;
 #endif
 
 #if defined(TARGET_OS_IOS)
-typedef struct {
+typedef struct AppRemoteDeviceState {
     DemuxId demuxId;
-    AppByteSlice user_id;
+    struct AppByteSlice user_id;
     bool mediaKeysReceived;
-    AppOptionalBool audioMuted;
-    AppOptionalBool videoMuted;
-    AppOptionalBool presenting;
-    AppOptionalBool sharingScreen;
+    struct AppOptionalBool audioMuted;
+    struct AppOptionalBool videoMuted;
+    struct AppOptionalBool presenting;
+    struct AppOptionalBool sharingScreen;
     uint64_t addedTime;
     uint64_t speakerTime;
-    AppOptionalBool forwardingVideo;
+    struct AppOptionalBool forwardingVideo;
 } AppRemoteDeviceState;
 #endif
 
 #if defined(TARGET_OS_IOS)
-typedef struct {
-    const AppRemoteDeviceState *states;
+typedef struct AppRemoteDeviceStateArray {
+    const struct AppRemoteDeviceState *states;
     size_t count;
 } AppRemoteDeviceStateArray;
 #endif
@@ -399,7 +241,7 @@ typedef struct {
 /**
  * iOS Interface for communicating with the Swift application.
  */
-typedef struct {
+typedef struct AppInterface {
     /**
      * Raw Swift object pointer.
      */
@@ -423,15 +265,15 @@ typedef struct {
     /**
      *
      */
-    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque, int32_t callMediaType);
+    void (*onSendOffer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, struct AppByteSlice opaque, int32_t callMediaType);
     /**
      *
      */
-    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, AppByteSlice opaque);
+    void (*onSendAnswer)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, struct AppByteSlice opaque);
     /**
      *
      */
-    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, const AppIceCandidateArray *candidates);
+    void (*onSendIceCandidates)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, const struct AppIceCandidateArray *candidates);
     /**
      *
      */
@@ -443,24 +285,24 @@ typedef struct {
     /**
      *
      */
-    void (*sendCallMessage)(void *object, AppByteSlice recipientUuid, AppByteSlice message, int32_t urgency);
+    void (*sendCallMessage)(void *object, struct AppByteSlice recipientUuid, struct AppByteSlice message, int32_t urgency);
     /**
      *
      */
-    void (*sendCallMessageToGroup)(void *object, AppByteSlice groupId, AppByteSlice message, int32_t urgency);
+    void (*sendCallMessageToGroup)(void *object, struct AppByteSlice groupId, struct AppByteSlice message, int32_t urgency);
     /**
      *
      */
-    void (*sendHttpRequest)(void *object, uint32_t requestId, AppByteSlice url, int32_t method, AppHeaderArray headerArray, AppByteSlice body);
+    void (*sendHttpRequest)(void *object, uint32_t requestId, struct AppByteSlice url, int32_t method, struct AppHeaderArray headerArray, struct AppByteSlice body);
     /**
      *
      */
-    AppConnectionInterface (*onCreateConnectionInterface)(void *object, void *observer, uint32_t deviceId, void *context, bool enable_dtls, bool enable_rtp_data_channel);
+    struct AppConnectionInterface (*onCreateConnectionInterface)(void *object, void *observer, uint32_t deviceId, void *context);
     /**
      * Request that the application create an application Media Stream object
      * associated with the given application Connection object.
      */
-    AppMediaStreamInterface (*onCreateMediaStreamInterface)(void *object, void *connection);
+    struct AppMediaStreamInterface (*onCreateMediaStreamInterface)(void *object, void *connection);
     /**
      *
      */
@@ -476,11 +318,11 @@ typedef struct {
     /**
      *
      */
-    void (*groupCallRingUpdate)(void *object, AppByteSlice groupId, int64_t ringId, AppByteSlice senderUuid, int32_t ringUpdate);
+    void (*groupCallRingUpdate)(void *object, struct AppByteSlice groupId, int64_t ringId, struct AppByteSlice senderUuid, int32_t ringUpdate);
     /**
      *
      */
-    void (*handlePeekResponse)(void *object, uint32_t requestId, AppUuidArray joinedMembers, AppByteSlice creator, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+    void (*handlePeekResponse)(void *object, uint32_t requestId, struct AppUuidArray joinedMembers, struct AppByteSlice creator, struct AppByteSlice eraId, struct AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
@@ -501,7 +343,7 @@ typedef struct {
     /**
      *
      */
-    void (*handleRemoteDevicesChanged)(void *object, ClientId clientId, AppRemoteDeviceStateArray remoteDeviceStates);
+    void (*handleRemoteDevicesChanged)(void *object, ClientId clientId, struct AppRemoteDeviceStateArray remoteDeviceStates);
     /**
      *
      */
@@ -509,7 +351,7 @@ typedef struct {
     /**
      *
      */
-    void (*handlePeekChanged)(void *object, ClientId clientId, AppUuidArray joinedMembers, AppByteSlice creator, AppByteSlice eraId, AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+    void (*handlePeekChanged)(void *object, ClientId clientId, struct AppUuidArray joinedMembers, struct AppByteSlice creator, struct AppByteSlice eraId, struct AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
@@ -519,34 +361,9 @@ typedef struct {
 
 #if defined(TARGET_OS_IOS)
 /**
- * Log object for interfacing with swift.
- */
-typedef struct {
-    void *object;
-    void (*destroy)(void *object);
-    void (*log)(void *object, AppByteSlice message, AppByteSlice file, AppByteSlice function, int32_t line, int8_t level);
-} IosLogger;
-#endif
-
-#if defined(TARGET_OS_IOS)
-typedef struct {
-    AppByteSlice userId;
-    AppByteSlice userIdCipherText;
-} AppGroupMemberInfo;
-#endif
-
-#if defined(TARGET_OS_IOS)
-typedef struct {
-    const AppGroupMemberInfo *members;
-    size_t count;
-} AppGroupMemberInfoArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
  * Structure for holding call context details on behalf of the application.
  */
-typedef struct {
+typedef struct AppCallContext {
     void *object;
     /**
      * Swift object clean up method.
@@ -556,60 +373,307 @@ typedef struct {
 #endif
 
 #if defined(TARGET_OS_IOS)
+typedef struct AppGroupMemberInfo {
+    struct AppByteSlice userId;
+    struct AppByteSlice userIdCipherText;
+} AppGroupMemberInfo;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct AppGroupMemberInfoArray {
+    const struct AppGroupMemberInfo *members;
+    size_t count;
+} AppGroupMemberInfoArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
 /**
  * Structure for passing optional u16 values to/from Swift.
  */
-typedef struct {
+typedef struct AppOptionalUInt16 {
     uint16_t value;
     bool valid;
 } AppOptionalUInt16;
 #endif
 
 #if defined(TARGET_OS_IOS)
-typedef struct {
+typedef struct AppVideoRequest {
     DemuxId demux_id;
     uint16_t width;
     uint16_t height;
-    AppOptionalUInt16 framerate;
+    struct AppOptionalUInt16 framerate;
 } AppVideoRequest;
 #endif
 
 #if defined(TARGET_OS_IOS)
-typedef struct {
-    const AppVideoRequest *resolutions;
+typedef struct AppVideoRequestArray {
+    const struct AppVideoRequest *resolutions;
     size_t count;
 } AppVideoRequestArray;
 #endif
 
+/**
+ * Rust version of WebRTC RFFI InjectableNetwork
+ */
+typedef struct RffiInjectableNetwork {
+    uint8_t _private[0];
+} RffiInjectableNetwork;
+
+typedef const struct RffiInjectableNetwork *Borrowed_RffiInjectableNetwork;
+
+typedef const void *Borrowed_c_void;
+
+typedef const char *Borrowed_c_char;
+
+/**
+ * Rust version of Web RFFI Ip,
+ * which is like WebRTC IPAddress.
+ */
+typedef struct RffiIp {
+    bool v6;
+    uint8_t address[16];
+} RffiIp;
+
+/**
+ * Rust version of WebRTC RFFI IpPort,
+ * which is like WebRTC SocketAddress
+ */
+typedef struct RffiIpPort {
+    struct RffiIp ip;
+    uint16_t port;
+} RffiIpPort;
+
+typedef const uint8_t *Borrowed_u8;
+
+typedef struct LoggerCallbacks {
+    void (*onLogMessage)(enum LogSeverity, Borrowed_c_char);
+} LoggerCallbacks;
+
+typedef const struct LoggerCallbacks *Borrowed_LoggerCallbacks;
+
+/**
+ * Incomplete type for C++ VideoTrack.
+ */
+typedef struct RffiVideoTrack {
+    uint8_t _private[0];
+} RffiVideoTrack;
+
+typedef const struct RffiVideoTrack *BorrowedRc_RffiVideoTrack;
+
+/**
+ * Incomplete type for C++ AudioTrack.
+ */
+typedef struct RffiAudioTrack {
+    uint8_t _private[0];
+} RffiAudioTrack;
+
+typedef const struct RffiAudioTrack *BorrowedRc_RffiAudioTrack;
+
+/**
+ * Incomplete type for C++ VideoSource.
+ */
+typedef struct RffiVideoSource {
+    uint8_t _private[0];
+} RffiVideoSource;
+
+typedef const struct RffiVideoSource *BorrowedRc_RffiVideoSource;
+
+/**
+ * Incomplete type for C++ webrtc::VideoFrameBuffer.
+ */
+typedef struct RffiVideoFrameBuffer {
+    uint8_t _private[0];
+} RffiVideoFrameBuffer;
+
+typedef const struct RffiVideoFrameBuffer *BorrowedRc_RffiVideoFrameBuffer;
+
+typedef const struct RffiVideoFrameBuffer *OwnedRc_RffiVideoFrameBuffer;
+
+/**
+ * Incomplete type for C++ webrtc::rffi::CreateSessionDescriptionObserverRffi
+ */
+typedef struct RffiCreateSessionDescriptionObserver {
+    uint8_t _private[0];
+} RffiCreateSessionDescriptionObserver;
+
+typedef const struct RffiCreateSessionDescriptionObserver *BorrowedRc_RffiCreateSessionDescriptionObserver;
+
+/**
+ * Incomplete type for C++ CreateSessionDescriptionObserverRffi
+ */
+typedef struct RffiSetSessionDescriptionObserver {
+    uint8_t _private[0];
+} RffiSetSessionDescriptionObserver;
+
+typedef const struct RffiSetSessionDescriptionObserver *BorrowedRc_RffiSetSessionDescriptionObserver;
+
+/**
+ * Incomplete type for SessionDescription, used by
+ * CreateSessionDescriptionObserver callbacks.
+ */
+typedef struct RffiSessionDescription {
+    uint8_t _private[0];
+} RffiSessionDescription;
+
+typedef const struct RffiSessionDescription *Owned_RffiSessionDescription;
+
+typedef const struct RffiIpPort *Borrowed_RffiIpPort;
+
+/**
+ * Incomplete type for C++ IceGathererInterface.
+ */
+typedef struct RffiIceGatherer {
+    uint8_t _private[0];
+} RffiIceGatherer;
+
+typedef const struct RffiIceGatherer *OwnedRc_RffiIceGatherer;
+
+typedef const struct RffiIceGatherer *BorrowedRc_RffiIceGatherer;
+
+/**
+ * Incomplete type for C++ webrtc::rffi::StatsObserverRffi
+ */
+typedef struct RffiStatsObserver {
+    uint8_t _private[0];
+} RffiStatsObserver;
+
+typedef const struct RffiStatsObserver *BorrowedRc_RffiStatsObserver;
+
+typedef uint8_t PayloadType;
+
+typedef uint16_t SequenceNumber;
+
+typedef uint32_t Timestamp;
+
+typedef uint32_t Ssrc;
+
+typedef struct RffiAudioEncoderConfig {
+    uint32_t packet_size_ms;
+    int32_t bandwidth;
+    int32_t start_bitrate_bps;
+    int32_t min_bitrate_bps;
+    int32_t max_bitrate_bps;
+    int32_t complexity;
+    int32_t enable_vbr;
+    int32_t enable_dtx;
+    int32_t enable_fec;
+} RffiAudioEncoderConfig;
+
+typedef const struct RffiAudioEncoderConfig *Borrowed_RffiAudioEncoderConfig;
+
+/**
+ * Incomplete type for C++ PeerConnectionFactoryOwner.
+ */
+typedef struct RffiPeerConnectionFactoryOwner {
+    uint8_t _private[0];
+} RffiPeerConnectionFactoryOwner;
+
+typedef const struct RffiPeerConnectionFactoryOwner *OwnedRc_RffiPeerConnectionFactoryOwner;
+
+/**
+ * Incomplete type for C++ PeerConnectionFactoryInterface.
+ */
+typedef struct RffiPeerConnectionFactoryInterface {
+    uint8_t _private[0];
+} RffiPeerConnectionFactoryInterface;
+
+typedef const struct RffiPeerConnectionFactoryInterface *BorrowedRc_RffiPeerConnectionFactoryInterface;
+
+typedef const struct RffiPeerConnectionFactoryOwner *BorrowedRc_RffiPeerConnectionFactoryOwner;
+
+typedef const struct RffiPeerConnection *OwnedRc_RffiPeerConnection;
+
+/**
+ * Incomplete type for C++ PeerConnectionObserver.
+ */
+typedef struct RffiPeerConnectionObserver {
+    uint8_t _private[0];
+} RffiPeerConnectionObserver;
+
+typedef const struct RffiPeerConnectionObserver *Borrowed_RffiPeerConnectionObserver;
+
+/**
+ * Incomplete type for C++ RTCCertificate.
+ */
+typedef struct RffiCertificate {
+    uint8_t _private[0];
+} RffiCertificate;
+
+typedef const struct RffiCertificate *BorrowedRc_RffiCertificate;
+
+typedef const Borrowed_c_char *Borrowed_Borrowed_c_char;
+
+typedef struct RffiIceServer {
+    Borrowed_c_char username;
+    Borrowed_c_char password;
+    Borrowed_Borrowed_c_char urls;
+    uintptr_t urls_size;
+} RffiIceServer;
+
+typedef const struct RffiAudioTrack *OwnedRc_RffiAudioTrack;
+
+typedef const struct RffiVideoSource *OwnedRc_RffiVideoSource;
+
+typedef const struct RffiVideoTrack *OwnedRc_RffiVideoTrack;
+
+typedef const struct RffiCertificate *OwnedRc_RffiCertificate;
+
+typedef const struct RffiPeerConnectionObserver *Owned_RffiPeerConnectionObserver;
+
+typedef struct RffiRefCounted {
+    uint8_t _private[0];
+} RffiRefCounted;
+
+typedef const struct RffiRefCounted *OwnedRc_RffiRefCounted;
+
+typedef const struct RffiRefCounted *BorrowedRc_RffiRefCounted;
+
+typedef const struct RffiSetSessionDescriptionObserver *OwnedRc_RffiSetSessionDescriptionObserver;
+
+typedef const struct RffiCreateSessionDescriptionObserver *OwnedRc_RffiCreateSessionDescriptionObserver;
+
+typedef const char *Owned_c_char;
+
+typedef const struct RffiSessionDescription *Borrowed_RffiSessionDescription;
+
+typedef struct RffiVideoCodec {
+    enum RffiVideoCodecType type;
+    uint32_t level;
+} RffiVideoCodec;
+
+typedef const struct RffiVideoCodec *Borrowed_RffiVideoCodec;
+
+typedef struct RffiConnectionParametersV4 {
+    Borrowed_c_char ice_ufrag;
+    Borrowed_c_char ice_pwd;
+    Borrowed_RffiVideoCodec receive_video_codecs;
+    uintptr_t receive_video_codecs_size;
+} RffiConnectionParametersV4;
+
+typedef const struct RffiConnectionParametersV4 *Owned_RffiConnectionParametersV4;
+
+typedef const struct RffiConnectionParametersV4 *Borrowed_RffiConnectionParametersV4;
+
+typedef const uint32_t *Borrowed_u32;
+
+typedef const struct RffiStatsObserver *OwnedRc_RffiStatsObserver;
+
+#define RTP_DATA_PAYLOAD_TYPE 101
+
+#define OLD_RTP_DATA_SSRC_FOR_OUTGOING 1001
+
+#define OLD_RTP_DATA_SSRC_FOR_INCOMING 2001
+
+#define NEW_RTP_DATA_SSRC 13
+
+#define INVALID_CLIENT_ID 0
+
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcAcceptCall(JNIEnv env,
-                                                           JObject _object,
-                                                           jlong call_manager,
-                                                           jlong call_id);
+jobject Java_org_signal_ringrtc_CallManager_ringrtcGetBuildInfo(JNIEnv env, JClass _class);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcCall(JNIEnv env,
-                                                     JObject _object,
-                                                     jlong call_manager,
-                                                     JObject jni_remote,
-                                                     jint call_media_type,
-                                                     jint local_device);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcCancelGroupRing(JNIEnv env,
-                                                                JObject _object,
-                                                                jlong call_manager,
-                                                                jbyteArray group_id,
-                                                                jlong ring_id,
-                                                                jint reason);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcClose(JNIEnv env,
-                                                      JObject _object,
-                                                      jlong call_manager);
+void Java_org_signal_ringrtc_CallManager_ringrtcInitialize(JNIEnv env, JClass _class);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -622,75 +686,25 @@ jlong Java_org_signal_ringrtc_CallManager_ringrtcCreateCallManager(JNIEnv env,
 jlong Java_org_signal_ringrtc_CallManager_ringrtcCreatePeerConnection(JNIEnv env,
                                                                       JObject _object,
                                                                       jlong peer_connection_factory,
-                                                                      jlong native_connection,
+                                                                      jlong native_connection_borrowed,
                                                                       JObject jni_rtc_config,
-                                                                      JObject jni_media_constraints,
-                                                                      bool enable_dtls,
-                                                                      bool enable_rtp_data_channel);
+                                                                      JObject jni_media_constraints);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcDrop(JNIEnv env,
-                                                     JObject _object,
-                                                     jlong call_manager,
-                                                     jlong call_id);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-jobject Java_org_signal_ringrtc_CallManager_ringrtcGetActiveCallContext(JNIEnv env,
-                                                                        JObject _object,
-                                                                        jlong call_manager);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-jobject Java_org_signal_ringrtc_CallManager_ringrtcGetActiveConnection(JNIEnv env,
-                                                                       JObject _object,
-                                                                       jlong call_manager);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-jobject Java_org_signal_ringrtc_CallManager_ringrtcGetBuildInfo(JNIEnv env, JClass _class);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcHangup(JNIEnv env,
-                                                       JObject _object,
-                                                       jlong call_manager);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcHttpRequestFailed(JNIEnv env,
-                                                                  JObject _object,
-                                                                  jlong call_manager,
-                                                                  jlong request_id);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcInitialize(JNIEnv env, JClass _class);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcMessageSendFailure(JNIEnv env,
-                                                                   JObject _object,
-                                                                   jlong call_manager,
-                                                                   jlong call_id);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcMessageSent(JNIEnv env,
+void Java_org_signal_ringrtc_CallManager_ringrtcSetSelfUuid(JNIEnv env,
                                                             JObject _object,
                                                             jlong call_manager,
-                                                            jlong call_id);
+                                                            jbyteArray uuid);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcPeekGroupCall(JNIEnv env,
-                                                              JObject _object,
-                                                              jlong call_manager,
-                                                              jlong request_id,
-                                                              JString sfu_url,
-                                                              jbyteArray membership_proof,
-                                                              jbyteArray jni_serialized_group_members);
+void Java_org_signal_ringrtc_CallManager_ringrtcCall(JNIEnv env,
+                                                     JObject _object,
+                                                     jlong call_manager,
+                                                     JObject jni_remote,
+                                                     jint call_media_type,
+                                                     jint local_device);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -703,6 +717,35 @@ void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcMessageSent(JNIEnv env,
+                                                            JObject _object,
+                                                            jlong call_manager,
+                                                            jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcMessageSendFailure(JNIEnv env,
+                                                                   JObject _object,
+                                                                   jlong call_manager,
+                                                                   jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcHangup(JNIEnv env,
+                                                       JObject _object,
+                                                       jlong call_manager);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcCancelGroupRing(JNIEnv env,
+                                                                JObject _object,
+                                                                jlong call_manager,
+                                                                jbyteArray group_id,
+                                                                jlong ring_id,
+                                                                jint reason);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                JObject _object,
                                                                jlong call_manager,
@@ -712,6 +755,42 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                jboolean remote_supports_multi_ring,
                                                                jbyteArray sender_identity_key,
                                                                jbyteArray receiver_identity_key);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong call_id,
+                                                              JObject jni_remote,
+                                                              jint remote_device,
+                                                              jbyteArray opaque,
+                                                              jlong message_age_sec,
+                                                              jint call_media_type,
+                                                              jint local_device,
+                                                              jboolean remote_supports_multi_ring,
+                                                              jboolean jni_is_local_device_primary,
+                                                              jbyteArray sender_identity_key,
+                                                              jbyteArray receiver_identity_key);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedIceCandidates(JNIEnv env,
+                                                                      JObject _object,
+                                                                      jlong call_manager,
+                                                                      jlong call_id,
+                                                                      jint remote_device,
+                                                                      JObject jni_ice_candidates);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHangup(JNIEnv env,
+                                                               JObject _object,
+                                                               jlong call_manager,
+                                                               jlong call_id,
+                                                               jint remote_device,
+                                                               jint hangup_type,
+                                                               jint device_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -734,16 +813,6 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedCallMessage(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHangup(JNIEnv env,
-                                                               JObject _object,
-                                                               jlong call_manager,
-                                                               jlong call_id,
-                                                               jint remote_device,
-                                                               jint hangup_type,
-                                                               jint device_id);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
 void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHttpResponse(JNIEnv env,
                                                                      JObject _object,
                                                                      jlong call_manager,
@@ -753,42 +822,29 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedHttpResponse(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcReceivedIceCandidates(JNIEnv env,
-                                                                      JObject _object,
-                                                                      jlong call_manager,
-                                                                      jlong call_id,
-                                                                      jint remote_device,
-                                                                      JObject jni_ice_candidates);
+void Java_org_signal_ringrtc_CallManager_ringrtcHttpRequestFailed(JNIEnv env,
+                                                                  JObject _object,
+                                                                  jlong call_manager,
+                                                                  jlong request_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
-                                                              JObject _object,
-                                                              jlong call_manager,
-                                                              jlong call_id,
-                                                              JObject jni_remote,
-                                                              jint remote_device,
-                                                              jbyteArray opaque,
-                                                              jlong message_age_sec,
-                                                              jint call_media_type,
-                                                              jint local_device,
-                                                              jboolean remote_supports_multi_ring,
-                                                              jboolean jni_is_local_device_primary,
-                                                              jbyteArray sender_identity_key,
-                                                              jbyteArray receiver_identity_key);
+void Java_org_signal_ringrtc_CallManager_ringrtcAcceptCall(JNIEnv env,
+                                                           JObject _object,
+                                                           jlong call_manager,
+                                                           jlong call_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcReset(JNIEnv env,
-                                                      JObject _object,
-                                                      jlong call_manager);
+jobject Java_org_signal_ringrtc_CallManager_ringrtcGetActiveConnection(JNIEnv env,
+                                                                       JObject _object,
+                                                                       jlong call_manager);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_CallManager_ringrtcSetSelfUuid(JNIEnv env,
-                                                            JObject _object,
-                                                            jlong call_manager,
-                                                            jbyteArray uuid);
+jobject Java_org_signal_ringrtc_CallManager_ringrtcGetActiveCallContext(JNIEnv env,
+                                                                        JObject _object,
+                                                                        jlong call_manager);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -806,10 +862,32 @@ void Java_org_signal_ringrtc_CallManager_ringrtcUpdateBandwidthMode(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcConnect(JNIEnv env,
+void Java_org_signal_ringrtc_CallManager_ringrtcDrop(JNIEnv env,
+                                                     JObject _object,
+                                                     jlong call_manager,
+                                                     jlong call_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcReset(JNIEnv env,
                                                       JObject _object,
-                                                      jlong call_manager,
-                                                      jlong client_id);
+                                                      jlong call_manager);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcClose(JNIEnv env,
+                                                      JObject _object,
+                                                      jlong call_manager);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_CallManager_ringrtcPeekGroupCall(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong request_id,
+                                                              JString sfu_url,
+                                                              jbyteArray membership_proof,
+                                                              jbyteArray jni_serialized_group_members);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -819,8 +897,8 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      jbyteArray group_id,
                                                                      JString sfu_url,
                                                                      jlong native_peer_connection_factory_borrowed_rc,
-                                                                     jlong native_audio_track,
-                                                                     jlong native_video_track);
+                                                                     jlong native_audio_track_borrowed_rc,
+                                                                     jlong native_video_track_borrowed_rc);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -831,10 +909,10 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcDeleteGroupCallClient(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcDisconnect(JNIEnv env,
-                                                         JObject _object,
-                                                         jlong call_manager,
-                                                         jlong client_id);
+void Java_org_signal_ringrtc_GroupCall_ringrtcConnect(JNIEnv env,
+                                                      JObject _object,
+                                                      jlong call_manager,
+                                                      jlong client_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -852,50 +930,10 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcLeave(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcRequestVideo(JNIEnv env,
-                                                           JObject _object,
-                                                           jlong call_manager,
-                                                           jlong client_id,
-                                                           JObject jni_rendered_resolutions);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcResendMediaKeys(JNIEnv env,
-                                                              JObject _object,
-                                                              jlong call_manager,
-                                                              jlong client_id);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcRing(JNIEnv env,
-                                                   JObject _object,
-                                                   jlong call_manager,
-                                                   jlong client_id,
-                                                   jbyteArray recipient);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcSetBandwidthMode(JNIEnv env,
-                                                               JObject _object,
-                                                               jlong call_manager,
-                                                               jlong client_id,
-                                                               jint bandwidth_mode);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcSetGroupMembers(JNIEnv env,
-                                                              JObject _object,
-                                                              jlong call_manager,
-                                                              jlong client_id,
-                                                              jbyteArray jni_serialized_group_members);
-#endif
-
-#if defined(TARGET_OS_ANDROID)
-void Java_org_signal_ringrtc_GroupCall_ringrtcSetMembershipProof(JNIEnv env,
-                                                                 JObject _object,
-                                                                 jlong call_manager,
-                                                                 jlong client_id,
-                                                                 jbyteArray proof);
+void Java_org_signal_ringrtc_GroupCall_ringrtcDisconnect(JNIEnv env,
+                                                         JObject _object,
+                                                         jlong call_manager,
+                                                         jlong client_id);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -915,6 +953,65 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcSetOutgoingVideoMuted(JNIEnv env,
 #endif
 
 #if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcRing(JNIEnv env,
+                                                   JObject _object,
+                                                   jlong call_manager,
+                                                   jlong client_id,
+                                                   jbyteArray recipient);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcResendMediaKeys(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong client_id);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcSetBandwidthMode(JNIEnv env,
+                                                               JObject _object,
+                                                               jlong call_manager,
+                                                               jlong client_id,
+                                                               jint bandwidth_mode);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcRequestVideo(JNIEnv env,
+                                                           JObject _object,
+                                                           jlong call_manager,
+                                                           jlong client_id,
+                                                           JObject jni_rendered_resolutions);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcSetGroupMembers(JNIEnv env,
+                                                              JObject _object,
+                                                              jlong call_manager,
+                                                              jlong client_id,
+                                                              jbyteArray jni_serialized_group_members);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+void Java_org_signal_ringrtc_GroupCall_ringrtcSetMembershipProof(JNIEnv env,
+                                                                 JObject _object,
+                                                                 jlong call_manager,
+                                                                 jlong client_id,
+                                                                 jbyteArray proof);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+extern Owned_RffiJavaMediaStream Rust_createJavaMediaStream(OwnedRc_RffiMediaStream rffi_media_stream);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+extern void Rust_deleteJavaMediaStream(Owned_RffiJavaMediaStream rffi_java_media_stream);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
+extern jobject Rust_getJavaMediaStreamObject(Borrowed_RffiJavaMediaStream rffi_java_media_stream);
+#endif
+
+#if defined(TARGET_OS_ANDROID)
 /**
  * Export the nativeCreatepeerconnection() call from the
  * org.webrtc.PeerConnectionFactory class.
@@ -925,239 +1022,23 @@ extern jlong Java_org_webrtc_PeerConnectionFactory_nativeCreatePeerConnection(JN
                                                                               JObject rtcConfig,
                                                                               JObject constraints,
                                                                               jlong nativeObserver,
-                                                                              JObject sslCertificateVerifier,
-                                                                              jboolean enable_dtls,
-                                                                              jboolean enable_rtp_data_channel);
+                                                                              JObject sslCertificateVerifier);
 #endif
-
-extern void Rust_InjectableNetwork_AddInterface(const RffiInjectableNetwork *network,
-                                                const char *name,
-                                                NetworkInterfaceType typ,
-                                                RffiIp ip,
-                                                uint16_t preference);
-
-extern void Rust_InjectableNetwork_ReceiveUdp(const RffiInjectableNetwork *network,
-                                              RffiIpPort source,
-                                              RffiIpPort dest,
-                                              const uint8_t *data,
-                                              uintptr_t size);
-
-extern void Rust_InjectableNetwork_RemoveInterface(const RffiInjectableNetwork *network,
-                                                   const char *name);
-
-extern void Rust_InjectableNetwork_SetSender(const RffiInjectableNetwork *network,
-                                             CppObject sender);
-
-extern bool Rust_addIceCandidateFromSdp(const RffiPeerConnection *peer_connection, const char *sdp);
-
-extern bool Rust_addIceCandidateFromServer(const RffiPeerConnection *peer_connection,
-                                           RffiIp ip,
-                                           uint16_t port,
-                                           bool tcp);
-
-extern void Rust_addRef(CppObject ref_counted_pointer);
-
-extern void Rust_addVideoSink(const RffiVideoTrack *track, RustObject obj, CppObject cb);
-
-extern RffiSessionDescription *Rust_answerFromSdp(const char *sdp);
 
 #if defined(TARGET_OS_ANDROID)
 extern BorrowedRc_RffiPeerConnection Rust_borrowPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
 #endif
 
-extern void Rust_closePeerConnection(const RffiPeerConnection *peer_connection);
-
-extern bool Rust_computeCertificateFingerprintSha256(const RffiCertificate *cert,
-                                                     uint8_t (*fingerprint)[32]);
-
-extern void Rust_configureAudioEncoders(const RffiPeerConnection *peer_connection,
-                                        const RffiAudioEncoderConfig *config);
-
-extern void Rust_convertVideoFrameBufferToRgba(const RffiVideoFrameBuffer *buffer,
-                                               uint8_t *rgba_buffer);
-
-extern const RffiVideoFrameBuffer *Rust_copyAndRotateVideoFrameBuffer(const RffiVideoFrameBuffer *buffer,
-                                                                      VideoRotation rotation);
-
-extern void Rust_createAnswer(const RffiPeerConnection *peer_connection,
-                              const RffiCreateSessionDescriptionObserver *csd_observer);
-
-extern OwnedRc_RffiAudioTrack Rust_createAudioTrack(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
-
-extern const RffiCreateSessionDescriptionObserver *Rust_createCreateSessionDescriptionObserver(RustObject csd_observer,
-                                                                                               const void *csd_observer_cb);
-
-#if defined(TARGET_OS_ANDROID)
-extern const RffiJavaMediaStream *Rust_createJavaMediaStream(const RffiMediaStream *rffi_media_stream);
+#if defined(TARGET_OS_IOS)
+void *ringrtcInitialize(struct IosLogger logObject);
 #endif
-
-extern void Rust_createOffer(const RffiPeerConnection *peer_connection,
-                             const RffiCreateSessionDescriptionObserver *csd_observer);
-
-extern OwnedRc_RffiPeerConnection Rust_createPeerConnection(const RffiPeerConnectionFactoryOwner *factory,
-                                                            const RffiPeerConnectionObserver *observer,
-                                                            const RffiCertificate *certificate,
-                                                            bool hide_ip,
-                                                            RffiIceServer ice_server,
-                                                            const RffiAudioTrack *outgoing_audio_track,
-                                                            const RffiVideoTrack *outgoing_video_track,
-                                                            bool enable_dtls,
-                                                            bool enable_rtp_data_channel);
-
-extern OwnedRc_RffiPeerConnectionFactoryOwner Rust_createPeerConnectionFactory(bool use_new_audio_device_module,
-                                                                               bool use_injectable_network);
-
-extern OwnedRc_RffiPeerConnectionFactoryOwner Rust_createPeerConnectionFactoryWrapper(BorrowedRc_RffiPeerConnectionFactoryInterface factory);
-
-extern const RffiPeerConnectionObserver *Rust_createPeerConnectionObserver(RustObject cc_ptr,
-                                                                           CppObject pc_observer_cb,
-                                                                           bool enable_frame_encryption);
-
-extern const RffiSetSessionDescriptionObserver *Rust_createSetSessionDescriptionObserver(RustObject ssd_observer,
-                                                                                         const void *ssd_observer_cb);
-
-extern const RffiIceGatherer *Rust_createSharedIceGatherer(const RffiPeerConnection *peer_connection);
-
-extern const RffiDataChannel *Rust_createSignalingDataChannel(const RffiPeerConnection *peer_connection,
-                                                              const RffiPeerConnectionObserver *pc_observer);
-
-extern const RffiStatsObserver *Rust_createStatsObserver(RustObject stats_observer,
-                                                         const void *stats_observer_cbs);
-
-extern const RffiVideoFrameBuffer *Rust_createVideoFrameBufferFromRgba(uint32_t width,
-                                                                       uint32_t height,
-                                                                       const uint8_t *rgba_buffer);
-
-extern const RffiVideoSource *Rust_createVideoSource(const RffiPeerConnectionFactoryOwner *factory);
-
-extern const RffiVideoTrack *Rust_createVideoTrack(const RffiPeerConnectionFactoryOwner *factory,
-                                                   const RffiVideoSource *source);
-
-extern bool Rust_dataChannelSend(const RffiDataChannel *data_channel,
-                                 const uint8_t *buffer,
-                                 size_t len,
-                                 bool binary);
-
-extern bool Rust_disableDtlsAndSetSrtpKey(RffiSessionDescription *session_description,
-                                          SrtpCryptoSuite crypto_suite,
-                                          const uint8_t *key_ptr,
-                                          size_t key_len,
-                                          const uint8_t *salt_ptr,
-                                          size_t salt_len);
-
-#if defined(TARGET_OS_ANDROID)
-extern void Rust_freeJavaMediaStream(const RffiJavaMediaStream *rffi_java_media_stream);
-#endif
-
-extern const RffiCertificate *Rust_generateCertificate(void);
-
-extern int32_t Rust_getAudioPlayoutDeviceName(const RffiPeerConnectionFactoryOwner *factory,
-                                              uint16_t index,
-                                              char *out_name,
-                                              char *out_uuid);
-
-extern int16_t Rust_getAudioPlayoutDevices(const RffiPeerConnectionFactoryOwner *factory);
-
-extern int32_t Rust_getAudioRecordingDeviceName(const RffiPeerConnectionFactoryOwner *factory,
-                                                uint16_t index,
-                                                char *out_name,
-                                                char *out_uuid);
-
-extern int16_t Rust_getAudioRecordingDevices(const RffiPeerConnectionFactoryOwner *factory);
-
-extern const RffiVideoTrack *Rust_getFirstVideoTrack(const RffiMediaStream *stream);
-
-extern const RffiInjectableNetwork *Rust_getInjectableNetwork(const RffiPeerConnectionFactoryOwner *factory);
-
-#if defined(TARGET_OS_ANDROID)
-extern jobject Rust_getJavaMediaStreamObject(const RffiJavaMediaStream *rffi_java_media_stream);
-#endif
-
-extern void Rust_getStats(const RffiPeerConnection *peer_connection,
-                          const RffiStatsObserver *stats_observer);
-
-extern uint32_t Rust_getTrackIdAsUint32(const RffiVideoTrack *track);
-
-extern RffiSessionDescription *Rust_localDescriptionForGroupCall(const char *ice_ufrag,
-                                                                 const char *ice_pwd,
-                                                                 const uint8_t (*_dtls_fingerprint_sha256)[32],
-                                                                 uint32_t demux_id);
-
-extern RffiSessionDescription *Rust_offerFromSdp(const char *sdp);
-
-extern void Rust_pushVideoFrame(const RffiVideoSource *source, const RffiVideoFrameBuffer *buffer);
-
-extern bool Rust_receiveRtp(const RffiPeerConnection *peer_connection, PayloadType pt);
-
-extern void Rust_releaseRef(CppObject ref_counted_pointer);
-
-extern void Rust_releaseSessionDescription(RffiSessionDescription *sdi);
-
-extern void Rust_releaseV4(RffiConnectionParametersV4 *session_description);
-
-extern RffiSessionDescription *Rust_remoteDescriptionForGroupCall(const char *ice_ufrag,
-                                                                  const char *ice_pwd,
-                                                                  const uint8_t (*_dtls_fingerprint_sha256)[32],
-                                                                  const uint32_t *demux_ids_data,
-                                                                  size_t demux_ids_len);
-
-extern bool Rust_removeIceCandidates(const RffiPeerConnection *peer_connection,
-                                     const RffiIpPort *removed_addresses_data,
-                                     uintptr_t removed_addresses_len);
-
-extern bool Rust_sendRtp(const RffiPeerConnection *peer_connection,
-                         PayloadType pt,
-                         SequenceNumber seqnum,
-                         Timestamp timestamp,
-                         Ssrc ssrc,
-                         const uint8_t *payload_data,
-                         uintptr_t payload_size);
-
-extern RffiSessionDescription *Rust_sessionDescriptionFromV4(bool offer,
-                                                             const RffiConnectionParametersV4 *v4);
-
-extern RffiConnectionParametersV4 *Rust_sessionDescriptionToV4(const RffiSessionDescription *session_description);
-
-extern bool Rust_setAudioPlayoutDevice(const RffiPeerConnectionFactoryOwner *factory,
-                                       uint16_t index);
-
-extern void Rust_setAudioPlayoutEnabled(const RffiPeerConnection *peer_connection, bool enabled);
-
-extern bool Rust_setAudioRecordingDevice(const RffiPeerConnectionFactoryOwner *factory,
-                                         uint16_t index);
-
-extern void Rust_setAudioTrackEnabled(const RffiAudioTrack *track, bool enabled);
-
-extern bool Rust_setIncomingMediaEnabled(const RffiPeerConnection *peer_connection, bool enabled);
-
-extern void Rust_setLocalDescription(const RffiPeerConnection *peer_connection,
-                                     const RffiSetSessionDescriptionObserver *ssd_observer,
-                                     const RffiSessionDescription *local_description);
-
-extern void Rust_setLogger(CppObject cbs, LogSeverity min_severity);
-
-extern void Rust_setOutgoingMediaEnabled(const RffiPeerConnection *peer_connection, bool enabled);
-
-extern void Rust_setRemoteDescription(const RffiPeerConnection *peer_connection,
-                                      const RffiSetSessionDescriptionObserver *ssd_observer,
-                                      const RffiSessionDescription *remote_description);
-
-extern void Rust_setSendBitrates(const RffiPeerConnection *peer_connection,
-                                 int32_t min_bitrate_bps,
-                                 int32_t start_bitrate_bps,
-                                 int32_t max_bitrate_bps);
-
-extern void Rust_setVideoTrackContentHint(const RffiVideoTrack *track, bool is_screenshare);
-
-extern void Rust_setVideoTrackEnabled(const RffiVideoTrack *track, bool enabled);
-
-extern const char *Rust_toSdp(const RffiSessionDescription *offer);
-
-extern bool Rust_useSharedIceGatherer(const RffiPeerConnection *peer_connection,
-                                      const RffiIceGatherer *ice_gatherer);
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcAccept(void *callManager, uint64_t callId);
+void *ringrtcCreate(void *appCallManager, struct AppInterface appInterface);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcSetSelfUuid(void *callManager, struct AppByteSlice uuid);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1168,79 +1049,10 @@ void *ringrtcCall(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcCancelGroupRing(void *callManager,
-                             AppByteSlice groupId,
-                             int64_t ringId,
-                             int32_t reason);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcClose(void *callManager);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcConnect(void *callManager, ClientId clientId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcCreate(void *appCallManager, AppInterface appInterface);
-#endif
-
-#if defined(TARGET_OS_IOS)
-ClientId ringrtcCreateGroupCallClient(void *callManager,
-                                      AppByteSlice groupId,
-                                      AppByteSlice sfuUrl,
-                                      const void *nativeOwnedPeerConnectionFactory,
-                                      const void *nativeOwnedAudioTrack,
-                                      const void *nativeOwnedVideoTrack);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcDeleteGroupCallClient(void *callManager, ClientId clientId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcDisconnect(void *callManager, ClientId clientId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcDrop(void *callManager, uint64_t callId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcGetActiveCallContext(void *callManager);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcGetActiveConnection(void *callManager);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcGroupRing(void *callManager, ClientId clientId, AppByteSlice recipient);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcHangup(void *callManager);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcHttpRequestFailed(void *callManager, uint32_t requestId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcInitialize(IosLogger logObject);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcJoin(void *callManager, ClientId clientId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcLeave(void *callManager, ClientId clientId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcMessageSendFailure(void *callManager, uint64_t callId);
+void *ringrtcProceed(void *callManager,
+                     uint64_t callId,
+                     struct AppCallContext appCallContext,
+                     int32_t bandwidthMode);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1248,41 +1060,50 @@ void *ringrtcMessageSent(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcPeekGroupCall(void *callManager,
-                          uint32_t requestId,
-                          AppByteSlice sfuUrl,
-                          AppByteSlice proof,
-                          const AppGroupMemberInfoArray *appGroupMemberInfoArray);
+void *ringrtcMessageSendFailure(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcProceed(void *callManager,
-                     uint64_t callId,
-                     AppCallContext appCallContext,
-                     int32_t bandwidthMode);
+void *ringrtcHangup(void *callManager);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcCancelGroupRing(void *callManager,
+                             struct AppByteSlice groupId,
+                             int64_t ringId,
+                             int32_t reason);
 #endif
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcReceivedAnswer(void *callManager,
                             uint64_t callId,
                             uint32_t senderDeviceId,
-                            AppByteSlice opaque,
+                            struct AppByteSlice opaque,
                             bool senderSupportsMultiRing,
-                            AppByteSlice senderIdentityKey,
-                            AppByteSlice receiverIdentityKey);
+                            struct AppByteSlice senderIdentityKey,
+                            struct AppByteSlice receiverIdentityKey);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcReceivedBusy(void *callManager, uint64_t callId, uint32_t remoteDevice);
+void *ringrtcReceivedOffer(void *callManager,
+                           uint64_t callId,
+                           const void *remotePeer,
+                           uint32_t senderDeviceId,
+                           struct AppByteSlice opaque,
+                           uint64_t messageAgeSec,
+                           int32_t callMediaType,
+                           uint32_t receiverDeviceId,
+                           bool senderSupportsMultiRing,
+                           bool receiverDeviceIsPrimary,
+                           struct AppByteSlice senderIdentityKey,
+                           struct AppByteSlice receiverIdentityKey);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcReceivedCallMessage(void *callManager,
-                                AppByteSlice senderUuid,
-                                uint32_t senderDeviceId,
-                                uint32_t localDeviceId,
-                                AppByteSlice message,
-                                uint64_t messageAgeSec);
+void *ringrtcReceivedIceCandidates(void *callManager,
+                                   uint64_t callId,
+                                   uint32_t senderDeviceId,
+                                   const struct AppIceCandidateArray *appIceCandidateArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1294,42 +1115,51 @@ void *ringrtcReceivedHangup(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
+void *ringrtcReceivedBusy(void *callManager, uint64_t callId, uint32_t remoteDevice);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcReceivedCallMessage(void *callManager,
+                                struct AppByteSlice senderUuid,
+                                uint32_t senderDeviceId,
+                                uint32_t localDeviceId,
+                                struct AppByteSlice message,
+                                uint64_t messageAgeSec);
+#endif
+
+#if defined(TARGET_OS_IOS)
 void ringrtcReceivedHttpResponse(void *callManager,
                                  uint32_t requestId,
                                  uint16_t statusCode,
-                                 AppByteSlice body);
+                                 struct AppByteSlice body);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcReceivedIceCandidates(void *callManager,
-                                   uint64_t callId,
-                                   uint32_t senderDeviceId,
-                                   const AppIceCandidateArray *appIceCandidateArray);
+void ringrtcHttpRequestFailed(void *callManager, uint32_t requestId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcReceivedOffer(void *callManager,
-                           uint64_t callId,
-                           const void *remotePeer,
-                           uint32_t senderDeviceId,
-                           AppByteSlice opaque,
-                           uint64_t messageAgeSec,
-                           int32_t callMediaType,
-                           uint32_t receiverDeviceId,
-                           bool senderSupportsMultiRing,
-                           bool receiverDeviceIsPrimary,
-                           AppByteSlice senderIdentityKey,
-                           AppByteSlice receiverIdentityKey);
+void *ringrtcAccept(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcRequestVideo(void *callManager,
-                         ClientId clientId,
-                         const AppVideoRequestArray *appVideoRequestArray);
+void *ringrtcGetActiveConnection(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcResendMediaKeys(void *callManager, ClientId clientId);
+void *ringrtcGetActiveCallContext(void *callManager);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcSetVideoEnable(void *callManager, bool enable);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcUpdateBandwidthMode(void *callManager, int32_t bandwidthMode);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcDrop(void *callManager, uint64_t callId);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1337,17 +1167,48 @@ void *ringrtcReset(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcSetBandwidthMode(void *callManager, ClientId clientId, int32_t bandwidthMode);
+void *ringrtcClose(void *callManager);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcSetGroupMembers(void *callManager,
-                            ClientId clientId,
-                            const AppGroupMemberInfoArray *appGroupMemberInfoArray);
+void ringrtcPeekGroupCall(void *callManager,
+                          uint32_t requestId,
+                          struct AppByteSlice sfuUrl,
+                          struct AppByteSlice proof,
+                          const struct AppGroupMemberInfoArray *appGroupMemberInfoArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcSetMembershipProof(void *callManager, ClientId clientId, AppByteSlice proof);
+ClientId ringrtcCreateGroupCallClient(void *callManager,
+                                      struct AppByteSlice groupId,
+                                      struct AppByteSlice sfuUrl,
+                                      const void *nativePeerConnectionFactoryOwnedRc,
+                                      const void *nativeAudioTrackOwnedRc,
+                                      const void *nativeVideoTrackOwnedRc);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcDeleteGroupCallClient(void *callManager, ClientId clientId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcConnect(void *callManager, ClientId clientId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcJoin(void *callManager, ClientId clientId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcLeave(void *callManager, ClientId clientId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcDisconnect(void *callManager, ClientId clientId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcGroupRing(void *callManager, ClientId clientId, struct AppByteSlice recipient);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1359,15 +1220,231 @@ void ringrtcSetOutgoingVideoMuted(void *callManager, ClientId clientId, bool mut
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcSetSelfUuid(void *callManager, AppByteSlice uuid);
+void ringrtcResendMediaKeys(void *callManager, ClientId clientId);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcSetVideoEnable(void *callManager, bool enable);
+void ringrtcSetBandwidthMode(void *callManager, ClientId clientId, int32_t bandwidthMode);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcUpdateBandwidthMode(void *callManager, int32_t bandwidthMode);
+void ringrtcRequestVideo(void *callManager,
+                         ClientId clientId,
+                         const struct AppVideoRequestArray *appVideoRequestArray);
 #endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcSetGroupMembers(void *callManager,
+                            ClientId clientId,
+                            const struct AppGroupMemberInfoArray *appGroupMemberInfoArray);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcSetMembershipProof(void *callManager, ClientId clientId, struct AppByteSlice proof);
+#endif
+
+extern void Rust_InjectableNetwork_SetSender(Borrowed_RffiInjectableNetwork network,
+                                             Borrowed_c_void sender);
+
+extern void Rust_InjectableNetwork_AddInterface(Borrowed_RffiInjectableNetwork network,
+                                                Borrowed_c_char name,
+                                                enum NetworkInterfaceType typ,
+                                                struct RffiIp ip,
+                                                uint16_t preference);
+
+extern void Rust_InjectableNetwork_RemoveInterface(Borrowed_RffiInjectableNetwork network,
+                                                   Borrowed_c_char name);
+
+extern void Rust_InjectableNetwork_ReceiveUdp(Borrowed_RffiInjectableNetwork network,
+                                              struct RffiIpPort source,
+                                              struct RffiIpPort dest,
+                                              Borrowed_u8 data,
+                                              uintptr_t size);
+
+extern void Rust_setLogger(Borrowed_LoggerCallbacks callbacks, enum LogSeverity min_severity);
+
+extern uint32_t Rust_getTrackIdAsUint32(BorrowedRc_RffiVideoTrack track);
+
+extern void Rust_setAudioTrackEnabled(BorrowedRc_RffiAudioTrack track, bool enabled);
+
+extern void Rust_setVideoTrackEnabled(BorrowedRc_RffiVideoTrack track, bool enabled);
+
+extern void Rust_setVideoTrackContentHint(BorrowedRc_RffiVideoTrack track, bool is_screenshare);
+
+extern void Rust_pushVideoFrame(BorrowedRc_RffiVideoSource source,
+                                BorrowedRc_RffiVideoFrameBuffer buffer);
+
+extern OwnedRc_RffiVideoFrameBuffer Rust_createVideoFrameBufferFromRgba(uint32_t width,
+                                                                        uint32_t height,
+                                                                        Borrowed_u8 rgba);
+
+extern void Rust_convertVideoFrameBufferToRgba(BorrowedRc_RffiVideoFrameBuffer buffer,
+                                               uint8_t *rgba_out);
+
+extern OwnedRc_RffiVideoFrameBuffer Rust_copyAndRotateVideoFrameBuffer(BorrowedRc_RffiVideoFrameBuffer buffer,
+                                                                       enum VideoRotation rotation);
+
+extern void Rust_createOffer(BorrowedRc_RffiPeerConnection peer_connection,
+                             BorrowedRc_RffiCreateSessionDescriptionObserver csd_observer);
+
+extern void Rust_setLocalDescription(BorrowedRc_RffiPeerConnection peer_connection,
+                                     BorrowedRc_RffiSetSessionDescriptionObserver ssd_observer,
+                                     Owned_RffiSessionDescription local_description);
+
+extern void Rust_createAnswer(BorrowedRc_RffiPeerConnection peer_connection,
+                              BorrowedRc_RffiCreateSessionDescriptionObserver csd_observer);
+
+extern void Rust_setRemoteDescription(BorrowedRc_RffiPeerConnection peer_connection,
+                                      BorrowedRc_RffiSetSessionDescriptionObserver ssd_observer,
+                                      Owned_RffiSessionDescription remote_description);
+
+extern void Rust_setOutgoingMediaEnabled(BorrowedRc_RffiPeerConnection peer_connection,
+                                         bool enabled);
+
+extern bool Rust_setIncomingMediaEnabled(BorrowedRc_RffiPeerConnection peer_connection,
+                                         bool enabled);
+
+extern void Rust_setAudioPlayoutEnabled(BorrowedRc_RffiPeerConnection peer_connection,
+                                        bool enabled);
+
+extern bool Rust_addIceCandidateFromSdp(BorrowedRc_RffiPeerConnection peer_connection,
+                                        Borrowed_c_char sdp);
+
+extern bool Rust_addIceCandidateFromServer(BorrowedRc_RffiPeerConnection peer_connection,
+                                           struct RffiIp ip,
+                                           uint16_t port,
+                                           bool tcp);
+
+extern bool Rust_removeIceCandidates(BorrowedRc_RffiPeerConnection peer_connection,
+                                     Borrowed_RffiIpPort removed_addresses_data,
+                                     uintptr_t removed_addresses_len);
+
+extern OwnedRc_RffiIceGatherer Rust_createSharedIceGatherer(BorrowedRc_RffiPeerConnection peer_connection);
+
+extern bool Rust_useSharedIceGatherer(BorrowedRc_RffiPeerConnection peer_connection,
+                                      BorrowedRc_RffiIceGatherer ice_gatherer);
+
+extern void Rust_getStats(BorrowedRc_RffiPeerConnection peer_connection,
+                          BorrowedRc_RffiStatsObserver stats_observer);
+
+extern void Rust_setSendBitrates(BorrowedRc_RffiPeerConnection peer_connection,
+                                 int32_t min_bitrate_bps,
+                                 int32_t start_bitrate_bps,
+                                 int32_t max_bitrate_bps);
+
+extern bool Rust_sendRtp(BorrowedRc_RffiPeerConnection peer_connection,
+                         PayloadType pt,
+                         SequenceNumber seqnum,
+                         Timestamp timestamp,
+                         Ssrc ssrc,
+                         Borrowed_u8 payload_data,
+                         uintptr_t payload_size);
+
+extern bool Rust_receiveRtp(BorrowedRc_RffiPeerConnection peer_connection, PayloadType pt);
+
+extern void Rust_configureAudioEncoders(BorrowedRc_RffiPeerConnection peer_connection,
+                                        Borrowed_RffiAudioEncoderConfig config);
+
+extern void Rust_closePeerConnection(BorrowedRc_RffiPeerConnection peer_connection);
+
+extern OwnedRc_RffiPeerConnectionFactoryOwner Rust_createPeerConnectionFactory(bool use_new_audio_device_module,
+                                                                               bool use_injectable_network);
+
+extern OwnedRc_RffiPeerConnectionFactoryOwner Rust_createPeerConnectionFactoryWrapper(BorrowedRc_RffiPeerConnectionFactoryInterface factory);
+
+extern Borrowed_RffiInjectableNetwork Rust_getInjectableNetwork(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
+
+extern OwnedRc_RffiPeerConnection Rust_createPeerConnection(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
+                                                            Borrowed_RffiPeerConnectionObserver observer,
+                                                            BorrowedRc_RffiCertificate dtls_certificate,
+                                                            bool hide_ip,
+                                                            struct RffiIceServer ice_server,
+                                                            BorrowedRc_RffiAudioTrack outgoing_audio_track,
+                                                            BorrowedRc_RffiVideoTrack outgoing_video_track);
+
+extern OwnedRc_RffiAudioTrack Rust_createAudioTrack(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
+
+extern OwnedRc_RffiVideoSource Rust_createVideoSource(void);
+
+extern OwnedRc_RffiVideoTrack Rust_createVideoTrack(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
+                                                    BorrowedRc_RffiVideoSource source);
+
+extern OwnedRc_RffiCertificate Rust_generateCertificate(void);
+
+extern bool Rust_computeCertificateFingerprintSha256(BorrowedRc_RffiCertificate cert,
+                                                     uint8_t (*fingerprint_out)[32]);
+
+extern int16_t Rust_getAudioPlayoutDevices(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
+
+extern int32_t Rust_getAudioPlayoutDeviceName(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
+                                              uint16_t index,
+                                              char *name_out,
+                                              char *uuid_out);
+
+extern bool Rust_setAudioPlayoutDevice(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
+                                       uint16_t index);
+
+extern int16_t Rust_getAudioRecordingDevices(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
+
+extern int32_t Rust_getAudioRecordingDeviceName(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
+                                                uint16_t index,
+                                                char *name_out,
+                                                char *uuid_out);
+
+extern bool Rust_setAudioRecordingDevice(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
+                                         uint16_t index);
+
+extern Owned_RffiPeerConnectionObserver Rust_createPeerConnectionObserver(Borrowed_c_void pc_observer,
+                                                                          Borrowed_c_void pc_observer_cb,
+                                                                          bool enable_frame_encryption,
+                                                                          bool enable_video_frame_event);
+
+extern void Rust_deletePeerConnectionObserver(Owned_RffiPeerConnectionObserver observer);
+
+extern void Rust_decRc(OwnedRc_RffiRefCounted rc);
+
+extern void Rust_incRc(BorrowedRc_RffiRefCounted rc);
+
+extern OwnedRc_RffiSetSessionDescriptionObserver Rust_createSetSessionDescriptionObserver(Borrowed_c_void ssd_observer,
+                                                                                          Borrowed_c_void ssd_observer_cb);
+
+extern OwnedRc_RffiCreateSessionDescriptionObserver Rust_createCreateSessionDescriptionObserver(Borrowed_c_void csd_observer,
+                                                                                                Borrowed_c_void csd_observer_cb);
+
+extern Owned_c_char Rust_toSdp(Borrowed_RffiSessionDescription desc);
+
+extern Owned_RffiSessionDescription Rust_answerFromSdp(Borrowed_c_char sdp);
+
+extern Owned_RffiSessionDescription Rust_offerFromSdp(Borrowed_c_char sdp);
+
+extern bool Rust_disableDtlsAndSetSrtpKey(Borrowed_RffiSessionDescription session_description,
+                                          enum SrtpCryptoSuite crypto_suite,
+                                          Borrowed_u8 key_data,
+                                          size_t key_len,
+                                          Borrowed_u8 salt_data,
+                                          size_t salt_len);
+
+extern Owned_RffiConnectionParametersV4 Rust_sessionDescriptionToV4(Borrowed_RffiSessionDescription v4);
+
+extern void Rust_deleteV4(Owned_RffiConnectionParametersV4 session_description);
+
+extern Owned_RffiSessionDescription Rust_sessionDescriptionFromV4(bool offer,
+                                                                  Borrowed_RffiConnectionParametersV4 v4);
+
+extern Owned_RffiSessionDescription Rust_localDescriptionForGroupCall(Borrowed_c_char ice_ufrag,
+                                                                      Borrowed_c_char ice_pwd,
+                                                                      const uint8_t (*dtls_fingerprint_sha256_borrowed)[32],
+                                                                      uint32_t demux_id);
+
+extern Owned_RffiSessionDescription Rust_remoteDescriptionForGroupCall(Borrowed_c_char ice_ufrag,
+                                                                       Borrowed_c_char ice_pwd,
+                                                                       const uint8_t (*dtls_fingerprint_sha256_borrowed)[32],
+                                                                       Borrowed_u32 demux_ids_data,
+                                                                       size_t demux_ids_len);
+
+extern void Rust_deleteSessionDescription(Owned_RffiSessionDescription sdi);
+
+extern OwnedRc_RffiStatsObserver Rust_createStatsObserver(Borrowed_c_void stats_observer,
+                                                          Borrowed_c_void stats_observer_cbs);
 
 #endif /* CBINDGEN_BINDINGS_H */
