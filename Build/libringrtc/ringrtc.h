@@ -277,7 +277,7 @@ typedef struct AppInterface {
     /**
      *
      */
-    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, int32_t hangupType, uint32_t deviceId, bool useLegacyHangupMessage);
+    void (*onSendHangup)(void *object, uint64_t callId, const void *remote, uint32_t destinationDeviceId, bool broadcast, int32_t hangupType, uint32_t deviceId);
     /**
      *
      */
@@ -752,7 +752,6 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedAnswer(JNIEnv env,
                                                                jlong call_id,
                                                                jint remote_device,
                                                                jbyteArray opaque,
-                                                               jboolean remote_supports_multi_ring,
                                                                jbyteArray sender_identity_key,
                                                                jbyteArray receiver_identity_key);
 #endif
@@ -768,7 +767,6 @@ void Java_org_signal_ringrtc_CallManager_ringrtcReceivedOffer(JNIEnv env,
                                                               jlong message_age_sec,
                                                               jint call_media_type,
                                                               jint local_device,
-                                                              jboolean remote_supports_multi_ring,
                                                               jboolean jni_is_local_device_primary,
                                                               jbyteArray sender_identity_key,
                                                               jbyteArray receiver_identity_key);
@@ -1079,7 +1077,6 @@ void *ringrtcReceivedAnswer(void *callManager,
                             uint64_t callId,
                             uint32_t senderDeviceId,
                             struct AppByteSlice opaque,
-                            bool senderSupportsMultiRing,
                             struct AppByteSlice senderIdentityKey,
                             struct AppByteSlice receiverIdentityKey);
 #endif
@@ -1093,7 +1090,6 @@ void *ringrtcReceivedOffer(void *callManager,
                            uint64_t messageAgeSec,
                            int32_t callMediaType,
                            uint32_t receiverDeviceId,
-                           bool senderSupportsMultiRing,
                            bool receiverDeviceIsPrimary,
                            struct AppByteSlice senderIdentityKey,
                            struct AppByteSlice receiverIdentityKey);
