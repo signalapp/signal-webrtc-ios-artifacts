@@ -592,15 +592,6 @@ typedef struct RffiPeerConnectionObserver {
 
 typedef const struct RffiPeerConnectionObserver *Borrowed_RffiPeerConnectionObserver;
 
-/**
- * Incomplete type for C++ RTCCertificate.
- */
-typedef struct RffiCertificate {
-    uint8_t _private[0];
-} RffiCertificate;
-
-typedef const struct RffiCertificate *BorrowedRc_RffiCertificate;
-
 typedef const Borrowed_c_char *Borrowed_Borrowed_c_char;
 
 typedef struct RffiIceServer {
@@ -615,8 +606,6 @@ typedef const struct RffiAudioTrack *OwnedRc_RffiAudioTrack;
 typedef const struct RffiVideoSource *OwnedRc_RffiVideoSource;
 
 typedef const struct RffiVideoTrack *OwnedRc_RffiVideoTrack;
-
-typedef const struct RffiCertificate *OwnedRc_RffiCertificate;
 
 typedef const struct RffiPeerConnectionObserver *Owned_RffiPeerConnectionObserver;
 
@@ -653,6 +642,17 @@ typedef struct RffiConnectionParametersV4 {
 typedef const struct RffiConnectionParametersV4 *Owned_RffiConnectionParametersV4;
 
 typedef const struct RffiConnectionParametersV4 *Borrowed_RffiConnectionParametersV4;
+
+/**
+ * For passing into C++
+ */
+typedef struct RffiSrtpKey {
+    enum SrtpCryptoSuite suite;
+    Borrowed_u8 key_data;
+    size_t key_len;
+    Borrowed_u8 salt_data;
+    size_t salt_len;
+} RffiSrtpKey;
 
 typedef const uint32_t *Borrowed_u32;
 
@@ -894,6 +894,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      jlong call_manager,
                                                                      jbyteArray group_id,
                                                                      JString sfu_url,
+                                                                     jbyteArray hkdf_extra_info,
                                                                      jlong native_peer_connection_factory_borrowed_rc,
                                                                      jlong native_audio_track_borrowed_rc,
                                                                      jlong native_video_track_borrowed_rc);
@@ -1178,6 +1179,7 @@ void ringrtcPeekGroupCall(void *callManager,
 ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       struct AppByteSlice groupId,
                                       struct AppByteSlice sfuUrl,
+                                      struct AppByteSlice hkdfExtraInfo,
                                       const void *nativePeerConnectionFactoryOwnedRc,
                                       const void *nativeAudioTrackOwnedRc,
                                       const void *nativeVideoTrackOwnedRc);
@@ -1352,7 +1354,6 @@ extern Borrowed_RffiInjectableNetwork Rust_getInjectableNetwork(BorrowedRc_RffiP
 
 extern OwnedRc_RffiPeerConnection Rust_createPeerConnection(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
                                                             Borrowed_RffiPeerConnectionObserver observer,
-                                                            BorrowedRc_RffiCertificate dtls_certificate,
                                                             bool hide_ip,
                                                             struct RffiIceServer ice_server,
                                                             BorrowedRc_RffiAudioTrack outgoing_audio_track,
@@ -1364,11 +1365,6 @@ extern OwnedRc_RffiVideoSource Rust_createVideoSource(void);
 
 extern OwnedRc_RffiVideoTrack Rust_createVideoTrack(BorrowedRc_RffiPeerConnectionFactoryOwner factory,
                                                     BorrowedRc_RffiVideoSource source);
-
-extern OwnedRc_RffiCertificate Rust_generateCertificate(void);
-
-extern bool Rust_computeCertificateFingerprintSha256(BorrowedRc_RffiCertificate cert,
-                                                     uint8_t (*fingerprint_out)[32]);
 
 extern int16_t Rust_getAudioPlayoutDevices(BorrowedRc_RffiPeerConnectionFactoryOwner factory);
 
@@ -1429,12 +1425,12 @@ extern Owned_RffiSessionDescription Rust_sessionDescriptionFromV4(bool offer,
 
 extern Owned_RffiSessionDescription Rust_localDescriptionForGroupCall(Borrowed_c_char ice_ufrag,
                                                                       Borrowed_c_char ice_pwd,
-                                                                      const uint8_t (*dtls_fingerprint_sha256_borrowed)[32],
+                                                                      struct RffiSrtpKey client_srtp_key,
                                                                       uint32_t demux_id);
 
 extern Owned_RffiSessionDescription Rust_remoteDescriptionForGroupCall(Borrowed_c_char ice_ufrag,
                                                                        Borrowed_c_char ice_pwd,
-                                                                       const uint8_t (*dtls_fingerprint_sha256_borrowed)[32],
+                                                                       struct RffiSrtpKey server_srtp_key,
                                                                        Borrowed_u32 demux_ids_data,
                                                                        size_t demux_ids_len);
 
