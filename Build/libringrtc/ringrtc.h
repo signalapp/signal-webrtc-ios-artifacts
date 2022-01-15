@@ -19,16 +19,6 @@
 
 #define MAXIMUM_BITRATE_BPS 2000001
 
-/**
- * The periodic tick interval. Used to generate stats and to retransmit RTP messages.
- */
-#define TICK_PERIOD_SEC 1
-
-/**
- * The stats period, how often to get and log them. Assumes tick period is 1 second.
- */
-#define STATS_PERIOD_SEC 10
-
 #define MAC_SIZE_BYTES 16
 
 typedef enum LogSeverity {
@@ -205,6 +195,24 @@ typedef uint32_t ClientId;
 
 typedef uint32_t DemuxId;
 
+typedef uint16_t RffiAudioLevel;
+
+typedef RffiAudioLevel AudioLevel;
+
+#if defined(TARGET_OS_IOS)
+typedef struct AppReceivedAudioLevel {
+    DemuxId demuxId;
+    AudioLevel level;
+} AppReceivedAudioLevel;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct AppReceivedAudioLevelArray {
+    const struct AppReceivedAudioLevel *levels;
+    size_t count;
+} AppReceivedAudioLevelArray;
+#endif
+
 #if defined(TARGET_OS_IOS)
 /**
  * Structure for passing optional bool values to/from Swift.
@@ -262,6 +270,10 @@ typedef struct AppInterface {
      *
      */
     void (*onNetworkRouteChanged)(void *object, const void *remote, int32_t localNetworkAdapterType);
+    /**
+     *
+     */
+    void (*onAudioLevels)(void *object, const void *remote, uint16_t capturedLevel, uint16_t receivedLevel);
     /**
      *
      */
@@ -336,6 +348,7 @@ typedef struct AppInterface {
      */
     void (*handleConnectionStateChanged)(void *object, ClientId clientId, int32_t connectionState);
     void (*handleNetworkRouteChanged)(void *object, ClientId clientId, int32_t localNetworkAdapterType);
+    void (*handleAudioLevels)(void *object, ClientId clientId, uint16_t capturedLevel, struct AppReceivedAudioLevelArray receivedAudioLevels);
     /**
      *
      */
@@ -560,6 +573,17 @@ typedef struct RffiAudioEncoderConfig {
 } RffiAudioEncoderConfig;
 
 typedef const struct RffiAudioEncoderConfig *Borrowed_RffiAudioEncoderConfig;
+
+typedef const RffiAudioLevel *Borrowed_RffiAudioLevel;
+
+typedef struct RffiReceivedAudioLevel {
+    uint32_t demux_id;
+    RffiAudioLevel level;
+} RffiReceivedAudioLevel;
+
+typedef const struct RffiReceivedAudioLevel *Borrowed_RffiReceivedAudioLevel;
+
+typedef const uintptr_t *Borrowed_usize;
 
 /**
  * Incomplete type for C++ PeerConnectionFactoryOwner.
@@ -1342,6 +1366,12 @@ extern bool Rust_receiveRtp(BorrowedRc_RffiPeerConnection peer_connection, Paylo
 
 extern void Rust_configureAudioEncoders(BorrowedRc_RffiPeerConnection peer_connection,
                                         Borrowed_RffiAudioEncoderConfig config);
+
+extern void Rust_getAudioLevels(BorrowedRc_RffiPeerConnection peer_connection,
+                                Borrowed_RffiAudioLevel captured_out,
+                                Borrowed_RffiReceivedAudioLevel received_out,
+                                uintptr_t received_out_size,
+                                Borrowed_usize received_size_out);
 
 extern void Rust_closePeerConnection(BorrowedRc_RffiPeerConnection peer_connection);
 
