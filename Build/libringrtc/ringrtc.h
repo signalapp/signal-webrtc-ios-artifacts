@@ -737,7 +737,8 @@ void Java_org_signal_ringrtc_CallManager_ringrtcProceed(JNIEnv env,
                                                         jlong call_manager,
                                                         jlong call_id,
                                                         JObject jni_call_context,
-                                                        jint bandwidth_mode);
+                                                        jint bandwidth_mode,
+                                                        jint audio_levels_interval_millis);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -919,6 +920,7 @@ jlong Java_org_signal_ringrtc_GroupCall_ringrtcCreateGroupCallClient(JNIEnv env,
                                                                      jbyteArray group_id,
                                                                      JString sfu_url,
                                                                      jbyteArray hkdf_extra_info,
+                                                                     jint audio_levels_interval_millis,
                                                                      jlong native_peer_connection_factory_borrowed_rc,
                                                                      jlong native_audio_track_borrowed_rc,
                                                                      jlong native_video_track_borrowed_rc);
@@ -1075,7 +1077,8 @@ void *ringrtcCall(void *callManager,
 void *ringrtcProceed(void *callManager,
                      uint64_t callId,
                      struct AppCallContext appCallContext,
-                     int32_t bandwidthMode);
+                     int32_t bandwidthMode,
+                     uint64_t audioLevelsIntervalMillis);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1204,6 +1207,7 @@ ClientId ringrtcCreateGroupCallClient(void *callManager,
                                       struct AppByteSlice groupId,
                                       struct AppByteSlice sfuUrl,
                                       struct AppByteSlice hkdfExtraInfo,
+                                      uint64_t audio_levels_interval_millis,
                                       const void *nativePeerConnectionFactoryOwnedRc,
                                       const void *nativeAudioTrackOwnedRc,
                                       const void *nativeVideoTrackOwnedRc);
@@ -1296,9 +1300,17 @@ extern void Rust_setVideoTrackContentHint(BorrowedRc_RffiVideoTrack track, bool 
 extern void Rust_pushVideoFrame(BorrowedRc_RffiVideoSource source,
                                 BorrowedRc_RffiVideoFrameBuffer buffer);
 
-extern OwnedRc_RffiVideoFrameBuffer Rust_createVideoFrameBufferFromRgba(uint32_t width,
-                                                                        uint32_t height,
-                                                                        Borrowed_u8 rgba);
+extern OwnedRc_RffiVideoFrameBuffer Rust_copyVideoFrameBufferFromI420(uint32_t width,
+                                                                      uint32_t height,
+                                                                      Borrowed_u8 src);
+
+extern OwnedRc_RffiVideoFrameBuffer Rust_copyVideoFrameBufferFromNv12(uint32_t width,
+                                                                      uint32_t height,
+                                                                      Borrowed_u8 src);
+
+extern OwnedRc_RffiVideoFrameBuffer Rust_copyVideoFrameBufferFromRgba(uint32_t width,
+                                                                      uint32_t height,
+                                                                      Borrowed_u8 src);
 
 extern void Rust_convertVideoFrameBufferToRgba(BorrowedRc_RffiVideoFrameBuffer buffer,
                                                uint8_t *rgba_out);
