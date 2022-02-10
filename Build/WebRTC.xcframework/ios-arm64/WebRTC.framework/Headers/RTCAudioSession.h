@@ -89,7 +89,7 @@ RTC_OBJC_EXPORT
  */
 - (void)audioSession:(RTC_OBJC_TYPE(RTCAudioSession) *)audioSession willSetActive:(BOOL)active;
 
-/** Called after the audio session sucessfully changed the active state.
+/** Called after the audio session successfully changed the active state.
  */
 - (void)audioSession:(RTC_OBJC_TYPE(RTCAudioSession) *)audioSession didSetActive:(BOOL)active;
 

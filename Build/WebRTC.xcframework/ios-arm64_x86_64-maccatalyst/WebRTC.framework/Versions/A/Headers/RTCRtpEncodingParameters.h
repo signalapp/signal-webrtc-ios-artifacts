@@ -25,7 +25,7 @@ typedef NS_ENUM(NSInteger, RTCPriority) {
 RTC_OBJC_EXPORT
 @interface RTC_OBJC_TYPE (RTCRtpEncodingParameters) : NSObject
 
-/** The idenfifier for the encoding layer. This is used in simulcast. */
+/** The identifier for the encoding layer. This is used in simulcast. */
 @property(nonatomic, copy, nullable) NSString *rid;
 
 /** Controls whether the encoding is currently transmitted. */

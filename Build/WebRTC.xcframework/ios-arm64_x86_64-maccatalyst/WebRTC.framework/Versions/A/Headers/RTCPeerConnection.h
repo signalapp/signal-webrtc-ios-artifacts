@@ -169,7 +169,7 @@ RTC_OBJC_EXPORT
 RTC_OBJC_EXPORT
 @interface RTC_OBJC_TYPE (RTCPeerConnection) : NSObject
 
-/** The object that will be notifed about events such as state changes and
+/** The object that will be notified about events such as state changes and
  *  streams being added or removed.
  */
 @property(nonatomic, weak, nullable) id<RTC_OBJC_TYPE(RTCPeerConnectionDelegate)> delegate;
