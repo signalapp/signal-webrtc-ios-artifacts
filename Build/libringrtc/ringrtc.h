@@ -125,26 +125,6 @@ typedef struct AppIceCandidateArray {
 
 #if defined(TARGET_OS_IOS)
 /**
- * Structure for passing name/value strings to/from Swift.
- */
-typedef struct AppHeader {
-    struct AppByteSlice name;
-    struct AppByteSlice value;
-} AppHeader;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Structure for passing multiple name/value headers to/from Swift.
- */
-typedef struct AppHeaderArray {
-    const struct AppHeader *headers;
-    size_t count;
-} AppHeaderArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
  * Structure for passing connection details from the application.
  */
 typedef struct AppConnectionInterface {
@@ -172,23 +152,6 @@ typedef struct AppMediaStreamInterface {
      */
     void *(*createMediaStream)(void *object, void *nativeStream);
 } AppMediaStreamInterface;
-#endif
-
-#if defined(TARGET_OS_IOS)
-typedef struct AppUuidArray {
-    const struct AppByteSlice *uuids;
-    size_t count;
-} AppUuidArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional u32 values to/from Swift.
- */
-typedef struct AppOptionalUInt32 {
-    uint32_t value;
-    bool valid;
-} AppOptionalUInt32;
 #endif
 
 typedef uint32_t ClientId;
@@ -243,6 +206,23 @@ typedef struct AppRemoteDeviceStateArray {
     const struct AppRemoteDeviceState *states;
     size_t count;
 } AppRemoteDeviceStateArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct AppUuidArray {
+    const struct AppByteSlice *uuids;
+    size_t count;
+} AppUuidArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u32 values to/from Swift.
+ */
+typedef struct AppOptionalUInt32 {
+    uint32_t value;
+    bool valid;
+} AppOptionalUInt32;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -305,10 +285,6 @@ typedef struct AppInterface {
     /**
      *
      */
-    void (*sendHttpRequest)(void *object, uint32_t requestId, struct AppByteSlice url, int32_t method, struct AppHeaderArray headerArray, struct AppByteSlice body);
-    /**
-     *
-     */
     struct AppConnectionInterface (*onCreateConnectionInterface)(void *object, void *observer, uint32_t deviceId, void *context);
     /**
      * Request that the application create an application Media Stream object
@@ -331,10 +307,6 @@ typedef struct AppInterface {
      *
      */
     void (*groupCallRingUpdate)(void *object, struct AppByteSlice groupId, int64_t ringId, struct AppByteSlice senderUuid, int32_t ringUpdate);
-    /**
-     *
-     */
-    void (*handlePeekResponse)(void *object, uint32_t requestId, struct AppUuidArray joinedMembers, struct AppByteSlice creator, struct AppByteSlice eraId, struct AppOptionalUInt32 maxDevices, uint32_t deviceCount);
     /**
      *
      */
@@ -386,20 +358,6 @@ typedef struct AppCallContext {
 #endif
 
 #if defined(TARGET_OS_IOS)
-typedef struct AppGroupMemberInfo {
-    struct AppByteSlice userId;
-    struct AppByteSlice userIdCipherText;
-} AppGroupMemberInfo;
-#endif
-
-#if defined(TARGET_OS_IOS)
-typedef struct AppGroupMemberInfoArray {
-    const struct AppGroupMemberInfo *members;
-    size_t count;
-} AppGroupMemberInfoArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
 /**
  * Structure for passing optional u16 values to/from Swift.
  */
@@ -423,6 +381,64 @@ typedef struct AppVideoRequestArray {
     const struct AppVideoRequest *resolutions;
     size_t count;
 } AppVideoRequestArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct AppGroupMemberInfo {
+    struct AppByteSlice userId;
+    struct AppByteSlice userIdCipherText;
+} AppGroupMemberInfo;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct AppGroupMemberInfoArray {
+    const struct AppGroupMemberInfo *members;
+    size_t count;
+} AppGroupMemberInfoArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing name/value strings to/from Swift.
+ */
+typedef struct AppHeader {
+    struct AppByteSlice name;
+    struct AppByteSlice value;
+} AppHeader;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing multiple name/value headers to/from Swift.
+ */
+typedef struct AppHeaderArray {
+    const struct AppHeader *headers;
+    size_t count;
+} AppHeaderArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * iOS Interface for communicating with the Swift application.
+ */
+typedef struct AppLiteInterface {
+    /**
+     * Raw Swift object pointer.
+     */
+    void *object;
+    /**
+     * Swift object clean up method.
+     */
+    void (*destroy)(void *object);
+    /**
+     *
+     */
+    void (*sendHttpRequest)(void *object, uint32_t requestId, struct AppByteSlice url, int32_t method, struct AppHeaderArray headerArray, struct AppByteSlice body);
+    /**
+     *
+     */
+    void (*handlePeekResponse)(void *object, uint32_t requestId, struct AppUuidArray joinedMembers, struct AppByteSlice creator, struct AppByteSlice eraId, struct AppOptionalUInt32 maxDevices, uint32_t deviceCount);
+} AppLiteInterface;
 #endif
 
 /**
@@ -1059,7 +1075,9 @@ void *ringrtcInitialize(struct IosLogger logObject);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcCreate(void *appCallManager, struct AppInterface appInterface);
+void *ringrtcCreateCallManager(void *callManagerLite,
+                               void *appCallManager,
+                               struct AppInterface appInterface);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1152,17 +1170,6 @@ void ringrtcReceivedCallMessage(void *callManager,
 #endif
 
 #if defined(TARGET_OS_IOS)
-void ringrtcReceivedHttpResponse(void *callManager,
-                                 uint32_t requestId,
-                                 uint16_t statusCode,
-                                 struct AppByteSlice body);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcHttpRequestFailed(void *callManager, uint32_t requestId);
-#endif
-
-#if defined(TARGET_OS_IOS)
 void *ringrtcAccept(void *callManager, uint64_t callId);
 #endif
 
@@ -1192,14 +1199,6 @@ void *ringrtcReset(void *callManager);
 
 #if defined(TARGET_OS_IOS)
 void *ringrtcClose(void *callManager);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcPeekGroupCall(void *callManager,
-                          uint32_t requestId,
-                          struct AppByteSlice sfuUrl,
-                          struct AppByteSlice proof,
-                          const struct AppGroupMemberInfoArray *appGroupMemberInfoArray);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1267,6 +1266,29 @@ void ringrtcSetGroupMembers(void *callManager,
 
 #if defined(TARGET_OS_IOS)
 void ringrtcSetMembershipProof(void *callManager, ClientId clientId, struct AppByteSlice proof);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void *ringrtcCreateCallManagerLite(struct AppLiteInterface appLiteInterface);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcReceivedHttpResponse(void *callManagerLite,
+                                 uint32_t requestId,
+                                 uint16_t statusCode,
+                                 struct AppByteSlice body);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcHttpRequestFailed(void *callManagerLite, uint32_t requestId);
+#endif
+
+#if defined(TARGET_OS_IOS)
+void ringrtcPeekGroupCall(void *callManagerLite,
+                          uint32_t requestId,
+                          struct AppByteSlice sfuUrl,
+                          struct AppByteSlice proof,
+                          const struct AppGroupMemberInfoArray *appGroupMemberInfoArray);
 #endif
 
 extern void Rust_InjectableNetwork_SetSender(Borrowed_RffiInjectableNetwork network,

@@ -6,22 +6,22 @@ ringrtc version:
 2.18.1
 
 ringrtc git branch:
-(HEAD detached at v2.18.1)
+peter/stateless-group-call-peek-for-nse
 
 ringrtc git sha:
-46fe55060f18f958352a1a3e2f9bed766986ab98
+3a67bb48938a1cc60fd1a128992c3a8859480e4f
 
 webrtc version:
 4638f
 
 webrtc git branch:
-(HEAD detached at 4638f)
+peter/aec3-control
 
 webrtc git sha:
-c3195def8f764aa9cef690b5b6aadb332d7adcb1
+e6a04fd637d00ad01fbe21b9c73302a32a83de2e
 
 build_script git sha:
-46fe55060f18f958352a1a3e2f9bed766986ab98
+3a67bb48938a1cc60fd1a128992c3a8859480e4f
 
 rustc --version:
 rustc 1.57.0-nightly (2c7bc5e33 2021-09-15)
@@ -30,24 +30,24 @@ cargo --version:
 cargo 1.56.0-nightly (e515c3277 2021-09-08)
 
 xcodebuild -version:
-Xcode 13.0
-Build version 13A233
+Xcode 13.2.1
+Build version 13C100
 
 xcode-select -p:
 /Applications/Xcode.app/Contents/Developer
 
 gcc -v:
 Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/4.2.1
-Apple clang version 13.0.0 (clang-1300.0.29.3)
-Target: x86_64-apple-darwin20.5.0
+Apple clang version 13.0.0 (clang-1300.0.29.30)
+Target: x86_64-apple-darwin20.6.0
 Thread model: posix
 InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
 
 osx_version_details:
 ProductName:	macOS
-ProductVersion:	11.4
-BuildVersion:	20F71
+ProductVersion:	11.6
+BuildVersion:	20G165
 
 hostname:
-Signal’s Mac Builder
+Peter’s MacBook Pro
 
