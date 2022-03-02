@@ -15,6 +15,18 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define RESPONSE_CODE_NO_CONFERENCE 404
+
+#define RESPONSE_CODE_MAX_PARTICIPANTS_REACHED 413
+
+#define RESPONSE_CODE_INVALID_AUTH 601
+
+#define RESPONSE_CODE_REQUEST_FAILED 602
+
+#define RESPONSE_CODE_INVALID_UTF8 603
+
+#define RESPONSE_CODE_INVALID_JSON 604
+
 #define MINIMUM_BITRATE_BPS 30000
 
 #define MAXIMUM_BITRATE_BPS 2000001
@@ -60,6 +72,130 @@ typedef enum VideoRotation {
     VideoRotation_Clockwise180 = 180,
     VideoRotation_Clockwise270 = 270,
 } VideoRotation;
+
+/**
+ * Represents a device connecting to an SFU and joining a group call.
+ */
+typedef struct Client Client;
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Swift String/Data/[UInt8]/UnsafeBufferPointer<UInt8>
+ */
+typedef struct rtc_Bytes {
+    const uint8_t *ptr;
+    size_t count;
+} rtc_Bytes;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_http_Header {
+    struct rtc_Bytes name;
+    struct rtc_Bytes value;
+} rtc_http_Header;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_http_Headers {
+    const struct rtc_http_Header *ptr;
+    size_t count;
+} rtc_http_Headers;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_http_Request {
+    struct rtc_Bytes url;
+    int32_t method;
+    struct rtc_http_Headers headers;
+    struct rtc_Bytes body;
+} rtc_http_Request;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_http_Delegate {
+    void *ptr;
+    void (*release)(void *ptr);
+    void (*send_request)(const void *ptr, uint32_t request_id, struct rtc_http_Request request);
+} rtc_http_Delegate;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_http_Response {
+    uint16_t status_code;
+    struct rtc_Bytes body;
+} rtc_http_Response;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_sfu_GroupMember {
+    struct rtc_Bytes user_id;
+    struct rtc_Bytes member_id;
+} rtc_sfu_GroupMember;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_sfu_GroupMembers {
+    const struct rtc_sfu_GroupMember *ptr;
+    size_t count;
+} rtc_sfu_GroupMembers;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_sfu_PeekRequest {
+    struct rtc_Bytes sfu_url;
+    struct rtc_Bytes membership_proof;
+    struct rtc_sfu_GroupMembers group_members;
+} rtc_sfu_PeekRequest;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_OptionalU16 {
+    uint16_t value;
+    bool valid;
+} rtc_OptionalU16;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Swift "UInt32?"
+ */
+typedef struct rtc_OptionalU32 {
+    uint32_t value;
+    bool valid;
+} rtc_OptionalU32;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_UserIds {
+    const struct rtc_Bytes *ptr;
+    size_t count;
+} rtc_UserIds;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_sfu_PeekInfo {
+    struct rtc_Bytes creator;
+    struct rtc_Bytes era_id;
+    struct rtc_OptionalU32 max_devices;
+    uint32_t device_count;
+    struct rtc_UserIds joined_members;
+} rtc_sfu_PeekInfo;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_sfu_PeekResponse {
+    struct rtc_OptionalU16 error_status_code;
+    struct rtc_sfu_PeekInfo peek_info;
+} rtc_sfu_PeekResponse;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_sfu_Delegate {
+    void *ptr;
+    void (*release)(void *ptr);
+    void (*handle_peek_response)(const void *ptr, uint32_t request_id, struct rtc_sfu_PeekResponse peek_response);
+} rtc_sfu_Delegate;
+#endif
 
 #if defined(TARGET_OS_ANDROID)
 /**
@@ -282,9 +418,6 @@ typedef struct AppInterface {
      *
      */
     void (*sendCallMessageToGroup)(void *object, struct AppByteSlice groupId, struct AppByteSlice message, int32_t urgency);
-    /**
-     *
-     */
     struct AppConnectionInterface (*onCreateConnectionInterface)(void *object, void *observer, uint32_t deviceId, void *context);
     /**
      * Request that the application create an application Media Stream object
@@ -386,7 +519,7 @@ typedef struct AppVideoRequestArray {
 #if defined(TARGET_OS_IOS)
 typedef struct AppGroupMemberInfo {
     struct AppByteSlice userId;
-    struct AppByteSlice userIdCipherText;
+    struct AppByteSlice memberId;
 } AppGroupMemberInfo;
 #endif
 
@@ -395,50 +528,6 @@ typedef struct AppGroupMemberInfoArray {
     const struct AppGroupMemberInfo *members;
     size_t count;
 } AppGroupMemberInfoArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Structure for passing name/value strings to/from Swift.
- */
-typedef struct AppHeader {
-    struct AppByteSlice name;
-    struct AppByteSlice value;
-} AppHeader;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Structure for passing multiple name/value headers to/from Swift.
- */
-typedef struct AppHeaderArray {
-    const struct AppHeader *headers;
-    size_t count;
-} AppHeaderArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * iOS Interface for communicating with the Swift application.
- */
-typedef struct AppLiteInterface {
-    /**
-     * Raw Swift object pointer.
-     */
-    void *object;
-    /**
-     * Swift object clean up method.
-     */
-    void (*destroy)(void *object);
-    /**
-     *
-     */
-    void (*sendHttpRequest)(void *object, uint32_t requestId, struct AppByteSlice url, int32_t method, struct AppHeaderArray headerArray, struct AppByteSlice body);
-    /**
-     *
-     */
-    void (*handlePeekResponse)(void *object, uint32_t requestId, struct AppUuidArray joinedMembers, struct AppByteSlice creator, struct AppByteSlice eraId, struct AppOptionalUInt32 maxDevices, uint32_t deviceCount);
-} AppLiteInterface;
 #endif
 
 /**
@@ -707,6 +796,51 @@ typedef const struct RffiStatsObserver *OwnedRc_RffiStatsObserver;
 #define NEW_RTP_DATA_SSRC 13
 
 #define INVALID_CLIENT_ID 0
+
+#if defined(TARGET_OS_IOS)
+Client *rtc_http_Client_create(struct rtc_http_Delegate delegate);
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * # Safety
+ *
+ * client_ptr must come from rtc_http_Client_create and not already be destroyed
+ */
+void rtc_http_Client_destroy(Client *client_ptr);
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * # Safety
+ *
+ * client_ptr must come from rtc_http_Client_create and not already be destroyed
+ */
+void rtc_http_Client_received_response(const Client *client_ptr,
+                                       uint32_t request_id,
+                                       struct rtc_http_Response response);
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * # Safety
+ *
+ * client_ptr must come from rtc_http_Client_create and not already be destroyed
+ */
+void rtc_http_Client_request_failed(const Client *client_ptr, uint32_t request_id);
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * # Safety
+ *
+ * http_client_ptr must come from rtc_http_Client_create and not already be destroyed
+ */
+void rtc_sfu_peek(const Client *http_client_ptr,
+                  uint32_t request_id,
+                  struct rtc_sfu_PeekRequest request,
+                  struct rtc_sfu_Delegate delegate);
+#endif
 
 #if defined(TARGET_OS_ANDROID)
 jobject Java_org_signal_ringrtc_CallManager_ringrtcGetBuildInfo(JNIEnv env, JClass _class);
@@ -1075,9 +1209,7 @@ void *ringrtcInitialize(struct IosLogger logObject);
 #endif
 
 #if defined(TARGET_OS_IOS)
-void *ringrtcCreateCallManager(void *callManagerLite,
-                               void *appCallManager,
-                               struct AppInterface appInterface);
+void *ringrtcCreateCallManager(struct AppInterface appInterface, const Client *httpClient);
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1266,29 +1398,6 @@ void ringrtcSetGroupMembers(void *callManager,
 
 #if defined(TARGET_OS_IOS)
 void ringrtcSetMembershipProof(void *callManager, ClientId clientId, struct AppByteSlice proof);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcCreateCallManagerLite(struct AppLiteInterface appLiteInterface);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcReceivedHttpResponse(void *callManagerLite,
-                                 uint32_t requestId,
-                                 uint16_t statusCode,
-                                 struct AppByteSlice body);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcHttpRequestFailed(void *callManagerLite, uint32_t requestId);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void ringrtcPeekGroupCall(void *callManagerLite,
-                          uint32_t requestId,
-                          struct AppByteSlice sfuUrl,
-                          struct AppByteSlice proof,
-                          const struct AppGroupMemberInfoArray *appGroupMemberInfoArray);
 #endif
 
 extern void Rust_InjectableNetwork_SetSender(Borrowed_RffiInjectableNetwork network,

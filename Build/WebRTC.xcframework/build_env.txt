@@ -3,16 +3,16 @@
 To track down potential future issues, we log some of our build environment details.
 
 ringrtc version:
-2.18.1
+2.19.0
 
 ringrtc git branch:
-peter/stateless-group-call-peek-for-nse
+peter/lite
 
 ringrtc git sha:
-3a67bb48938a1cc60fd1a128992c3a8859480e4f
+d56f62bf19685c75221efbf418c70f2331dc18ab
 
 webrtc version:
-4638f
+4638h
 
 webrtc git branch:
 peter/aec3-control
@@ -21,13 +21,13 @@ webrtc git sha:
 e6a04fd637d00ad01fbe21b9c73302a32a83de2e
 
 build_script git sha:
-3a67bb48938a1cc60fd1a128992c3a8859480e4f
+d56f62bf19685c75221efbf418c70f2331dc18ab
 
 rustc --version:
-rustc 1.57.0-nightly (2c7bc5e33 2021-09-15)
+rustc 1.60.0-nightly (ad46af247 2022-01-14)
 
 cargo --version:
-cargo 1.56.0-nightly (e515c3277 2021-09-08)
+cargo 1.60.0-nightly (06b9d3174 2022-01-11)
 
 xcodebuild -version:
 Xcode 13.2.1
