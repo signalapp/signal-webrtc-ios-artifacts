@@ -15,18 +15,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define RESPONSE_CODE_NO_CONFERENCE 404
-
-#define RESPONSE_CODE_MAX_PARTICIPANTS_REACHED 413
-
-#define RESPONSE_CODE_INVALID_AUTH 601
-
-#define RESPONSE_CODE_REQUEST_FAILED 602
-
-#define RESPONSE_CODE_INVALID_UTF8 603
-
-#define RESPONSE_CODE_INVALID_JSON 604
-
 #define MINIMUM_BITRATE_BPS 30000
 
 #define MAXIMUM_BITRATE_BPS 2000001
@@ -80,18 +68,18 @@ typedef struct Client Client;
 
 #if defined(TARGET_OS_IOS)
 /**
- * Swift String/Data/[UInt8]/UnsafeBufferPointer<UInt8>
+ * Swift String
  */
-typedef struct rtc_Bytes {
+typedef struct rtc_String {
     const uint8_t *ptr;
     size_t count;
-} rtc_Bytes;
+} rtc_String;
 #endif
 
 #if defined(TARGET_OS_IOS)
 typedef struct rtc_http_Header {
-    struct rtc_Bytes name;
-    struct rtc_Bytes value;
+    struct rtc_String name;
+    struct rtc_String value;
 } rtc_http_Header;
 #endif
 
@@ -103,8 +91,18 @@ typedef struct rtc_http_Headers {
 #endif
 
 #if defined(TARGET_OS_IOS)
+/**
+ * Swift Data/[UInt8]/UnsafeBufferPointer<UInt8>
+ */
+typedef struct rtc_Bytes {
+    const uint8_t *ptr;
+    size_t count;
+} rtc_Bytes;
+#endif
+
+#if defined(TARGET_OS_IOS)
 typedef struct rtc_http_Request {
-    struct rtc_Bytes url;
+    struct rtc_String url;
     int32_t method;
     struct rtc_http_Headers headers;
     struct rtc_Bytes body;
@@ -127,6 +125,32 @@ typedef struct rtc_http_Response {
 #endif
 
 #if defined(TARGET_OS_IOS)
+/**
+ * Swift "UInt32?"
+ */
+typedef struct rtc_OptionalU32 {
+    uint32_t value;
+    bool valid;
+} rtc_OptionalU32;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_log_Record {
+    struct rtc_String message;
+    struct rtc_String file;
+    struct rtc_String function;
+    struct rtc_OptionalU32 line;
+    uint8_t level;
+} rtc_log_Record;
+#endif
+
+#if defined(TARGET_OS_IOS)
+typedef struct rtc_log_Delegate {
+    void (*log)(struct rtc_log_Record record);
+} rtc_log_Delegate;
+#endif
+
+#if defined(TARGET_OS_IOS)
 typedef struct rtc_sfu_GroupMember {
     struct rtc_Bytes user_id;
     struct rtc_Bytes member_id;
@@ -142,7 +166,7 @@ typedef struct rtc_sfu_GroupMembers {
 
 #if defined(TARGET_OS_IOS)
 typedef struct rtc_sfu_PeekRequest {
-    struct rtc_Bytes sfu_url;
+    struct rtc_String sfu_url;
     struct rtc_Bytes membership_proof;
     struct rtc_sfu_GroupMembers group_members;
 } rtc_sfu_PeekRequest;
@@ -156,16 +180,6 @@ typedef struct rtc_OptionalU16 {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Swift "UInt32?"
- */
-typedef struct rtc_OptionalU32 {
-    uint32_t value;
-    bool valid;
-} rtc_OptionalU32;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct rtc_UserIds {
     const struct rtc_Bytes *ptr;
     size_t count;
@@ -175,7 +189,7 @@ typedef struct rtc_UserIds {
 #if defined(TARGET_OS_IOS)
 typedef struct rtc_sfu_PeekInfo {
     struct rtc_Bytes creator;
-    struct rtc_Bytes era_id;
+    struct rtc_String era_id;
     struct rtc_OptionalU32 max_devices;
     uint32_t device_count;
     struct rtc_UserIds joined_members;
@@ -236,17 +250,6 @@ typedef struct AppByteSlice {
     const uint8_t *bytes;
     size_t len;
 } AppByteSlice;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Log object for interfacing with swift.
- */
-typedef struct IosLogger {
-    void *object;
-    void (*destroy)(void *object);
-    void (*log)(void *object, struct AppByteSlice message, struct AppByteSlice file, struct AppByteSlice function, int32_t line, int8_t level);
-} IosLogger;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -831,6 +834,10 @@ void rtc_http_Client_request_failed(const Client *client, uint32_t request_id);
 #endif
 
 #if defined(TARGET_OS_IOS)
+void rtc_log_init(struct rtc_log_Delegate delegate, uint8_t max_level);
+#endif
+
+#if defined(TARGET_OS_IOS)
 /**
  * # Safety
  *
@@ -1202,10 +1209,6 @@ extern jlong Java_org_webrtc_PeerConnectionFactory_nativeCreatePeerConnection(JN
 
 #if defined(TARGET_OS_ANDROID)
 extern BorrowedRc_RffiPeerConnection Rust_borrowPeerConnectionFromJniOwnedPeerConnection(int64_t jni_owned_pc);
-#endif
-
-#if defined(TARGET_OS_IOS)
-void *ringrtcInitialize(struct IosLogger logObject);
 #endif
 
 #if defined(TARGET_OS_IOS)
