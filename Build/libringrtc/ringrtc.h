@@ -44,6 +44,7 @@ typedef enum NetworkInterfaceType {
 
 typedef enum RffiVideoCodecType {
     Vp8 = 8,
+    Vp9 = 9,
     H264ConstrainedHigh = 46,
     H264ConstrainedBaseline = 40,
 } RffiVideoCodecType;
