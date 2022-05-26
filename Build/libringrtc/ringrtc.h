@@ -1476,6 +1476,9 @@ extern bool Rust_setIncomingMediaEnabled(BorrowedRc_RffiPeerConnection peer_conn
 extern void Rust_setAudioPlayoutEnabled(BorrowedRc_RffiPeerConnection peer_connection,
                                         bool enabled);
 
+extern void Rust_setAudioRecordingEnabled(BorrowedRc_RffiPeerConnection peer_connection,
+                                          bool enabled);
+
 extern bool Rust_addIceCandidateFromSdp(BorrowedRc_RffiPeerConnection peer_connection,
                                         Borrowed_c_char sdp);
 
