@@ -327,6 +327,16 @@ typedef struct AppOptionalBool {
 #endif
 
 #if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u32 values to/from Swift.
+ */
+typedef struct AppOptionalUInt32 {
+    uint32_t value;
+    bool valid;
+} AppOptionalUInt32;
+#endif
+
+#if defined(TARGET_OS_IOS)
 typedef struct AppRemoteDeviceState {
     DemuxId demuxId;
     struct AppByteSlice user_id;
@@ -338,6 +348,7 @@ typedef struct AppRemoteDeviceState {
     uint64_t addedTime;
     uint64_t speakerTime;
     struct AppOptionalBool forwardingVideo;
+    struct AppOptionalUInt32 clientDecodedHeight;
 } AppRemoteDeviceState;
 #endif
 
@@ -353,16 +364,6 @@ typedef struct AppUuidArray {
     const struct AppByteSlice *uuids;
     size_t count;
 } AppUuidArray;
-#endif
-
-#if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional u32 values to/from Swift.
- */
-typedef struct AppOptionalUInt32 {
-    uint32_t value;
-    bool valid;
-} AppOptionalUInt32;
 #endif
 
 #if defined(TARGET_OS_IOS)
@@ -1569,7 +1570,8 @@ extern bool Rust_setAudioRecordingDevice(BorrowedRc_RffiPeerConnectionFactoryOwn
 extern Owned_RffiPeerConnectionObserver Rust_createPeerConnectionObserver(Borrowed_c_void pc_observer,
                                                                           Borrowed_c_void pc_observer_cb,
                                                                           bool enable_frame_encryption,
-                                                                          bool enable_video_frame_event);
+                                                                          bool enable_video_frame_event,
+                                                                          bool enable_video_frame_content);
 
 extern void Rust_deletePeerConnectionObserver(Owned_RffiPeerConnectionObserver observer);
 
