@@ -1164,7 +1164,8 @@ void Java_org_signal_ringrtc_GroupCall_ringrtcRequestVideo(JNIEnv env,
                                                            JObject _object,
                                                            jlong call_manager,
                                                            jlong client_id,
-                                                           JObject jni_rendered_resolutions);
+                                                           JObject jni_rendered_resolutions,
+                                                           jint active_speaker_height);
 #endif
 
 #if defined(TARGET_OS_ANDROID)
@@ -1392,7 +1393,8 @@ void ringrtcSetBandwidthMode(void *callManager, ClientId clientId, int32_t bandw
 #if defined(TARGET_OS_IOS)
 void ringrtcRequestVideo(void *callManager,
                          ClientId clientId,
-                         const struct AppVideoRequestArray *appVideoRequestArray);
+                         const struct AppVideoRequestArray *appVideoRequestArray,
+                         uint16_t activeSpeakerHeight);
 #endif
 
 #if defined(TARGET_OS_IOS)
