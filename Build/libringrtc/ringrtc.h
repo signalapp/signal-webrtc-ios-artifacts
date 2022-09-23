@@ -327,16 +327,6 @@ typedef struct AppOptionalBool {
 #endif
 
 #if defined(TARGET_OS_IOS)
-/**
- * Structure for passing optional u32 values to/from Swift.
- */
-typedef struct AppOptionalUInt32 {
-    uint32_t value;
-    bool valid;
-} AppOptionalUInt32;
-#endif
-
-#if defined(TARGET_OS_IOS)
 typedef struct AppRemoteDeviceState {
     DemuxId demuxId;
     struct AppByteSlice user_id;
@@ -348,7 +338,7 @@ typedef struct AppRemoteDeviceState {
     uint64_t addedTime;
     uint64_t speakerTime;
     struct AppOptionalBool forwardingVideo;
-    struct AppOptionalUInt32 clientDecodedHeight;
+    bool isHigherResolutionPending;
 } AppRemoteDeviceState;
 #endif
 
@@ -364,6 +354,16 @@ typedef struct AppUuidArray {
     const struct AppByteSlice *uuids;
     size_t count;
 } AppUuidArray;
+#endif
+
+#if defined(TARGET_OS_IOS)
+/**
+ * Structure for passing optional u32 values to/from Swift.
+ */
+typedef struct AppOptionalUInt32 {
+    uint32_t value;
+    bool valid;
+} AppOptionalUInt32;
 #endif
 
 #if defined(TARGET_OS_IOS)
