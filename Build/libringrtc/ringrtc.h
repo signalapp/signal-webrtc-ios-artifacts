@@ -1407,6 +1407,17 @@ void ringrtcSetGroupMembers(void *callManager,
 void ringrtcSetMembershipProof(void *callManager, ClientId clientId, struct AppByteSlice proof);
 #endif
 
+#if defined(TARGET_OS_IOS)
+bool ringrtcIsValidOffer(struct AppByteSlice opaque, uint64_t messageAgeSec, int32_t callMediaType);
+#endif
+
+#if defined(TARGET_OS_IOS)
+bool ringrtcIsCallMessageValidOpaqueRing(struct AppByteSlice message,
+                                         uint64_t messageAgeSec,
+                                         void *callbackContext,
+                                         bool (*validateGroupIdAndRing)(struct AppByteSlice, int64_t, void*));
+#endif
+
 extern void Rust_InjectableNetwork_SetSender(Borrowed_RffiInjectableNetwork network,
                                              Borrowed_c_void sender);
 
