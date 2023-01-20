@@ -568,6 +568,8 @@ typedef struct RffiIpPort {
 
 typedef const uint8_t *Borrowed_u8;
 
+typedef const char *Owned_c_char;
+
 typedef struct LoggerCallbacks {
     void (*onLogMessage)(enum LogSeverity, Borrowed_c_char);
 } LoggerCallbacks;
@@ -754,8 +756,6 @@ typedef const struct RffiRefCounted *BorrowedRc_RffiRefCounted;
 typedef const struct RffiSetSessionDescriptionObserver *OwnedRc_RffiSetSessionDescriptionObserver;
 
 typedef const struct RffiCreateSessionDescriptionObserver *OwnedRc_RffiCreateSessionDescriptionObserver;
-
-typedef const char *Owned_c_char;
 
 typedef const struct RffiSessionDescription *Borrowed_RffiSessionDescription;
 
@@ -1435,6 +1435,8 @@ extern void Rust_InjectableNetwork_ReceiveUdp(Borrowed_RffiInjectableNetwork net
                                               struct RffiIpPort dest,
                                               Borrowed_u8 data,
                                               uintptr_t size);
+
+extern void Rust_setFieldTrials(Owned_c_char field_trials_string);
 
 extern void Rust_setLogger(Borrowed_LoggerCallbacks callbacks, enum LogSeverity min_severity);
 
